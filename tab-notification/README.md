@@ -1,9 +1,5 @@
 [<= Micro-script list](../#micro-scripts)
 
-> [!Note]
->
-> Still need to check if this is overriding something as this adds ::after on the tab, right now I haven't been able to find it but I remember one time when a widget has a network issue, it would add a red dot beside it.
-
 ![reddit custom-api](preview1.png)
 
 ![reddit custom-api](preview2.png)

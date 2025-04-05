@@ -29,7 +29,7 @@ document.querySelectorAll(`.${TAB_NOTIFICATION_CLASS}`).forEach((e, i) => {
       ${glanceWidgetTabTarget}::after {
         content: '${count}';
         display: inline-flex;
-        position: absolute;
+        vertical-align: top;
         margin-left: 2px;
         background-color: var(${isError ? '--color-negative' : '--color-primary'});
         color: var(--color-background);
