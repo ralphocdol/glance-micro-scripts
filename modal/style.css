@@ -1,0 +1,108 @@
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 15;
+}
+
+.modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-widget-background-highlight);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
+}
+
+.modal.show::before {
+    opacity: 0.7;
+}
+
+.modal .modal-container {
+    --shadow-properties: 0 15px 20px -10px;
+    --shadow-color: hsla(var(--bghs), calc(var(--bgl) * 0.2), 0.5);
+    background: var(--color-popover-background);
+    border: 1px solid var(--color-popover-border);
+    padding: 4.5rem;
+    border-radius: 5px;
+    animation: modalFrameEntrance 0.3s backwards cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--shadow-properties) var(--shadow-color);
+}
+
+.modal[modal-no-background] .modal-container {
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.modal.show .modal-container {
+    transform: scale(1);
+}
+
+.modal .close {
+    cursor: pointer;
+    font-size: 30px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.modal .modal-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal .modal-content .modal-header,
+.modal .modal-content .modal-footer {
+    flex: 0 0 10%;
+}
+
+.modal .modal-content .modal-header:empty,
+.modal .modal-content .modal-footer:empty {
+    flex: 0 0 0%;
+    display: none;
+}
+
+.modal .modal-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+[modal-header],
+[modal-body],
+[modal-footer] {
+    display: none;
+}
+
+[data-content-type="modal"] {
+    cursor: pointer;
+}
+
+@keyframes modalFrameEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(var(--entrance-direction));
+    }
+}
