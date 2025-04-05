@@ -1,4 +1,4 @@
-[<= Micro-script list](../)
+[<= Micro-script list](../#micro-scripts)
 
 > [!Note]
 >
