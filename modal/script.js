@@ -29,17 +29,17 @@ document.addEventListener('click', (e) => {
 
         if (headerElement) {
             modalHeader.innerHTML = headerElement.innerHTML.trim();
-            if (headerElement.className) modalHeader.classList.add(headerElement.className);
+            modalHeader.classList.add(...headerElement.classList);
         }
 
         if (bodyElement) {
             modalBody.innerHTML = bodyElement.innerHTML.trim();
-            if (bodyElement.className) modalBody.classList.add(bodyElement.className);
+            modalBody.classList.add(...bodyElement.classList);
         }
 
         if (footerElement) {
             modalFooter.innerHTML = footerElement.innerHTML.trim();
-            if (footerElement.className) modalFooter.classList.add(footerElement.className);
+            modalFooter.classList.add(...footerElement.classList);
         }
 
         if (triggerElement.hasAttribute('dismiss-on-outside-click')) {
