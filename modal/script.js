@@ -1,24 +1,30 @@
 const modalWrapper = document.createElement('div');
 modalWrapper.className = 'modal';
 modalWrapper.innerHTML = `
-        <div class="modal-container">
-          <span class="close">&times;</span>
-          <div class="modal-content">
-            <div class="modal-header"></div>
+    <div class="modal-container">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-content"></div>
+            </div>
             <div class="modal-body"></div>
             <div class="modal-footer"></div>
-          </div>
         </div>
-    `;
+    </div>
+`;
 document.body.appendChild(modalWrapper);
 
+const closeBtnElement = document.createElement('span');
+closeBtnElement.className = 'close';
+closeBtnElement.textContent = '\u00D7';
+
 const modal = document.querySelector('.modal');
-const modalContainer = document.querySelector('.modal-container');
-const modalHeader = document.querySelector('.modal-header');
-const modalBody = document.querySelector('.modal-body');
-const modalFooter = document.querySelector('.modal-footer');
-const closeBtn = document.querySelector('.close');
+const modalContainer = modal.querySelector('.modal-container');
+const modalHeader = modal.querySelector('.modal-header');
+const modalHeaderContent = modal.querySelector('.modal-header-content');
+const modalBody = modal.querySelector('.modal-body');
+const modalFooter = modal.querySelector('.modal-footer');
 const bodyOverflowState = document.body.style.overflow;
+let closeBtn = null;
 
 document.addEventListener('click', (e) => {
     if (e.target.closest('[data-content-type="modal"]')) {
@@ -28,9 +34,12 @@ document.addEventListener('click', (e) => {
         const footerElement = triggerElement.querySelector('[modal-footer]');
 
         if (headerElement) {
-            modalHeader.innerHTML = headerElement.innerHTML.trim();
-            modalHeader.classList.add(...headerElement.classList);
+            modalHeaderContent.innerHTML = headerElement.innerHTML.trim();
+            modalHeaderContent.classList.add(...headerElement.classList);
         }
+
+        modalHeader.appendChild(closeBtnElement);
+        closeBtn = modal.querySelector('.close')
 
         if (bodyElement) {
             modalBody.innerHTML = bodyElement.innerHTML.trim();

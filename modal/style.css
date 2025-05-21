@@ -38,7 +38,6 @@
     --shadow-color: hsla(var(--bghs), calc(var(--bgl) * 0.2), 0.5);
     background: var(--color-popover-background);
     border: 1px solid var(--color-popover-border);
-    padding: 4.5rem;
     border-radius: 5px;
     animation: modalFrameEntrance 0.3s backwards cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: var(--shadow-properties) var(--shadow-color);
@@ -54,11 +53,17 @@
     transform: scale(1);
 }
 
+.modal .modal-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 .modal .close {
     cursor: pointer;
-    font-size: 30px;
-    width: 30px;
-    height: 30px;
+    font-size: 25px;
+    width: 25px;
+    height: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,10 +72,25 @@
     right: 10px;
 }
 
-.modal .modal-content {
-    height: 100%;
+.modal .modal-header {
+    position: relative;
+    padding: 1.5rem 3rem 0;
+}
+
+.modal .modal-header-content {
+    padding-right: 45px;
+}
+
+.modal .modal-body {
+    flex: 1;
     display: flex;
-    flex-direction: column;
+    overflow: hidden;
+    padding: 0 3rem;
+    margin: 0.5rem 0;
+}
+
+.modal .modal-footer {
+    padding: 0 3rem 1.5rem;
 }
 
 .modal .modal-content .modal-header,
@@ -82,12 +102,6 @@
 .modal .modal-content .modal-footer:empty {
     flex: 0 0 0%;
     display: none;
-}
-
-.modal .modal-body {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
 }
 
 [modal-header],
