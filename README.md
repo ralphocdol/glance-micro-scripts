@@ -6,10 +6,10 @@
 
 | Script | DOM Loaded? | Glance Ready? | Tested Version |
 | ------ | :--------: | :--------: | :--------: |
-| [custom-api Script Loader](custom-api-script-loader/) | YES | YES | v0.8.2 |
-| [Swipe Left and Right](swipe-left-and-right/) | YES | NO | v0.8.2  |
-| [Modal](modal/) | YES | NO | v0.8.2  |
-| [Tab Notification](tab-notification/) | YES | YES | v0.8.2  |
+| [custom-api Script Loader](custom-api-script-loader/) | YES | YES | v0.8.3 |
+| [Swipe Left and Right](swipe-left-and-right/) | YES | NO | v0.8.3  |
+| [Modal](modal/) | YES | NO | v0.8.3  |
+| [Tab Notification](tab-notification/) | YES | YES | v0.8.3  |
 
 ### Loading Script
 Issues with loading the scripts are mostly because of the lack of [Cache Busting](https://www.keycdn.com/support/what-is-cache-busting) for JavaScript.
