@@ -1,3 +1,17 @@
+const ENUM_WIDTH = {
+    SMALL: 'small',
+    MEDIUM: 'medium',
+    WIDE: 'wide',
+    FULL: 'full',
+}
+
+const ENUM_HEIGHT = {
+    SHORT: 'short',
+    MEDIUM: 'medium',
+    TALL: 'tall',
+    FULL: 'full',
+}
+
 const modalWrapper = document.createElement('div');
 modalWrapper.className = 'modal';
 modalWrapper.innerHTML = `
@@ -61,27 +75,18 @@ document.addEventListener('click', (e) => {
 
         modal.className = `modal ${triggerElement.className}`;
 
-        const width = triggerElement.getAttribute('width') || '90%';
-        const height = triggerElement.getAttribute('height') || '90%';
+        modalContainer.classList.remove(
+            ...Object.values(ENUM_WIDTH).map(size => `modal-width-${size}`),
+            ...Object.values(ENUM_HEIGHT).map(size => `modal-height-${size}`),
+        );
 
-        switch (triggerElement.getAttribute('size')) {
-            case 'theater':
-                modalContainer.style.width = '80%';
-                modalContainer.style.height = '80%';
-                break;
-            case 'full':
-                modalContainer.style.width = '100%';
-                modalContainer.style.height = '100%';
-                break;
-            case 'medium':
-                modalContainer.style.width = '60%';
-                modalContainer.style.height = '60%';
-                break;
-            default:
-                modalContainer.style.width = width;
-                modalContainer.style.height = height;
-                break;
-        }
+        const attributeWidth = triggerElement.getAttribute('width');
+        const width = Object.values(ENUM_WIDTH).includes(attributeWidth) ? attributeWidth : ENUM_WIDTH.WIDE;
+        modalContainer.classList.add(`modal-width-${width}`);
+
+        const attributeHeight = triggerElement.getAttribute('height');
+        const height = Object.values(ENUM_HEIGHT).includes(attributeHeight) ? attributeHeight : ENUM_HEIGHT.TALL;
+        modalContainer.classList.add(`modal-height-${height}`);
 
         modal.style.display = 'flex';
         setTimeout(() => modal.classList.add('show'), 10);

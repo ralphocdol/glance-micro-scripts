@@ -26,3 +26,5 @@ Until then, this will have to do.
 * `data-content-type="modal"`: will be used as a modal container
 * `dismiss-on-outside-click`: will allow the modal to be closed when clicked outside
 * `modal-no-background`: will remove the background of the modal
+* `width`: small, medium, wide, full
+* `height`: short, medium, tall, full

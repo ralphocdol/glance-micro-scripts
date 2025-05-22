@@ -41,7 +41,73 @@
     border-radius: 5px;
     animation: modalFrameEntrance 0.3s backwards cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: var(--shadow-properties) var(--shadow-color);
+    display: flex;
+    width: 100%;
+    margin: 3rem;
 }
+
+.modal .modal-height-short {
+    height: 300px;
+}
+
+.modal .modal-height-medium {
+    height: 600px;
+}
+
+.modal .modal-height-tall {
+    height: 800px;
+}
+
+.modal .modal-height-full {
+    height: 100vh;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.modal .modal-width-small {
+    max-width: 400px;
+}
+
+.modal .modal-width-medium {
+    max-width: 600px;
+}
+
+.modal .modal-width-wide {
+    max-width: 1300px;
+}
+
+.modal .modal-width-full {
+    max-width: 100vw;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+@media (max-width: 1190px) {
+    .modal .modal-width-small {
+        max-width: 350px;
+    }
+
+    .modal .modal-width-medium {
+        max-width: 800px;
+    }
+
+    .modal .modal-width-wide {
+        max-width: 1190px;
+    }
+}
+
+@media (max-width: 550px) {
+    .modal .modal-container {
+        padding: 0 1rem;
+    }
+
+    .modal .modal-width-small,
+    .modal .modal-width-medium,
+    .modal .modal-width-wide {
+        max-width: 90%;
+    }
+}
+
 
 .modal[modal-no-background] .modal-container {
     background: none;
