@@ -9,7 +9,7 @@ Until then, this will have to do.
 
 # How to
 ```html
-<div data-content-type="modal">
+<div custom-modal>
   <!-- <div modal-header>
     Header, can be omitted
   </div> -->
@@ -22,9 +22,12 @@ Until then, this will have to do.
   Click me! <!-- Single html tag or plain text as the button -->
 </div>
 ```
-## Attributes
-* `data-content-type="modal"`: will be used as a modal container
-* `dismiss-on-outside-click`: will allow the modal to be closed when clicked outside
-* `modal-no-background`: will remove the background of the modal
-* `width`: small, medium, wide, full
-* `height`: short, medium, tall, full
+## Modal Attributes
+| Attribute | Required | Default | Options | Description |
+| --------- | -------- | ------- | ------- | ----------- |
+| custom-modal | Yes | - | - | Will be used as a modal container |
+| dismiss-on-outside-click | No | false | true, false | will allow the modal to be closed when clicked anywhere outside the modal |
+| modal-no-background | No | false | true, false | will remove the background of the modal |
+| width | No | wide | small, medium, wide, full | Sets the width of the modal. |
+| height | No | tall | short, medium, tall, full | Sets the "maximum" height of the modal, will automatically use the height depending on the content. |
+| fillHeight | No | false | true, false | Fills the set height regardless of the content |

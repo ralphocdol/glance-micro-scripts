@@ -10,6 +10,8 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 15;
+    --space-vertical: 1.5rem;
+    --space-horizontal: 3rem;
 }
 
 .modal::before {
@@ -47,19 +49,19 @@
 }
 
 .modal .modal-height-short {
-    height: 300px;
+    max-height: 300px;
 }
 
 .modal .modal-height-medium {
-    height: 600px;
+    max-height: 600px;
 }
 
 .modal .modal-height-tall {
-    height: 800px;
+    max-height: 800px;
 }
 
 .modal .modal-height-full {
-    height: 100vh;
+    max-height: 100vh;
     margin-top: 0;
     margin-bottom: 0;
 }
@@ -97,10 +99,6 @@
 }
 
 @media (max-width: 550px) {
-    .modal .modal-container {
-        padding: 0 1rem;
-    }
-
     .modal .modal-width-small,
     .modal .modal-width-medium,
     .modal .modal-width-wide {
@@ -120,7 +118,6 @@
 }
 
 .modal .modal-content {
-    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -140,7 +137,7 @@
 
 .modal .modal-header {
     position: relative;
-    padding: 1.5rem 3rem 0;
+    padding: var(--space-vertical) var(--space-horizontal) 0;
 }
 
 .modal .modal-header-content {
@@ -151,12 +148,12 @@
     flex: 1;
     display: flex;
     overflow: hidden;
-    padding: 0 3rem;
+    padding: 0 var(--space-horizontal);
     margin: 0.5rem 0;
 }
 
 .modal .modal-footer {
-    padding: 0 3rem 1.5rem;
+    padding: 0 var(--space-horizontal) var(--space-vertical);
 }
 
 .modal .modal-content .modal-header,
@@ -176,7 +173,7 @@
     display: none;
 }
 
-[data-content-type="modal"] {
+[custom-modal] {
     cursor: pointer;
 }
 

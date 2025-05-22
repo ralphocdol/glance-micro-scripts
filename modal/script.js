@@ -41,8 +41,8 @@ const bodyOverflowState = document.body.style.overflow;
 let closeBtn = null;
 
 document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-content-type="modal"]')) {
-        const triggerElement = e.target.closest('[data-content-type="modal"]');
+    const triggerElement = e.target.closest('[custom-modal]');
+    if (triggerElement) {
         const headerElement = triggerElement.querySelector('[modal-header]');
         const bodyElement = triggerElement.querySelector('[modal-body]');
         const footerElement = triggerElement.querySelector('[modal-footer]');
@@ -87,6 +87,13 @@ document.addEventListener('click', (e) => {
         const attributeHeight = triggerElement.getAttribute('height');
         const height = Object.values(ENUM_HEIGHT).includes(attributeHeight) ? attributeHeight : ENUM_HEIGHT.TALL;
         modalContainer.classList.add(`modal-height-${height}`);
+
+        const fillHeight = triggerElement.getAttribute('fillHeight');
+        if (fillHeight !== null && (fillHeight === '' || fillHeight === 'true')) {
+            modalContainer.style.height = '100%';
+        } else {
+            modalContainer.style.removeProperty('height');
+        }
 
         modal.style.display = 'flex';
         setTimeout(() => modal.classList.add('show'), 10);
