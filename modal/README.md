@@ -7,7 +7,7 @@ Until then, this will have to do.
 ![preview1](preview1.png)
 ![preview2](preview2.png)
 
-# How to
+# Usage
 ```html
 <div custom-modal>
   <!-- <div modal-header>

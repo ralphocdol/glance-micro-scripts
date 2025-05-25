@@ -6,7 +6,7 @@
 
 This is mainly for `custom-api` and/or "probably" `extension` too. If you need this on other widgets then you can convert those to `custom-api` or request this feature entirely as this can not interact with Glance's queries.
 
-# How to
+# Usage
 1. Add this the template config
     ```html
     <div class="tab-notification display-none" tab-notification-count="{{ $notificationCount }}" tab-title="{{ $notificationTitle }}"></div>

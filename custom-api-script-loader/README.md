@@ -6,7 +6,7 @@ Adding `<script></script>` in the custom API template does not work as of now, a
 >
 > Using API queries like `fetch` with API keys within the script is possible but it WILL expose them in the browser.
 
-# How to
+# Usage
 The template should have the `attribute type="custom-api-scripts"` and the function `scriptLoad()`
 
 Add a script like so below your `custom-api`'s template config
