@@ -20,12 +20,21 @@ Issues with loading the scripts are mostly because of the lack of [Cache Busting
 
 There are multiple methods you can load the scripts, such as:
 
-* The loader I used to use that loads the scripts like modules and appends File Modified Data as Cache Busting was https://github.com/ralphocdol/glance-js-loader#setting-up-loader.
+* The loader I used to use that loads the scripts like modules and appends File Modified Data as Cache Busting was https://github.com/ralphocdol/glance-js-loader#setting-up-loader which is deprecated. 
 
 * Or the current one I'm using:
 
-    ```javascript
+    in the `document` config:
+    ```yaml
+    document:
+        head: |
+            <script>
+                $include: path-to-js/main.js
+            </script>
+    ```
 
+    inside `main.js`
+    ```javascript
     // Add here if the script doesn't need both DOM and Glance to be ready
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -33,23 +42,17 @@ There are multiple methods you can load the scripts, such as:
 
         // Add here if the script needs the DOM to be loaded 
         // but doesn't need the Glance to be ready
+        $include: path-to-script/modal.js // example since modal can be loaded before Glance
 
         console.info("Waiting for Glance...");
-        while (!document.body.classList.contains('page-columns-transitioned')) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-        }
+        while (!document.body.classList.contains('page-columns-transitioned')) await new Promise(resolve => setTimeout(resolve, 50));
         console.info("Glance is ready...");
 
         // Add here if the script needs the Glance to be ready
     });
     ```
-    in the `document` config:
-    ```yaml
-    document:
-        head: |
-            <script>
-                $include: path-to-js-above/main.js
-            </script>
-    ```
 
-
+    > [!Note]
+    >
+    > Doing it this way will make the JS file follow the Glance's configuration template for the `document` `head`. Like how the a `${LOCAL_VARIABLE}` will be treated as an environment variable and needs to be escaped with `\` and become `\${LOCAL_VARIABLE}`. See https://github.com/glanceapp/glance/blob/v0.8.3/docs/configuration.md#environment-variables.
+    

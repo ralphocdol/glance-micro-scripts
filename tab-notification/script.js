@@ -1,33 +1,34 @@
-const TAB_NOTIFICATION_CLASS = 'tab-notification';
-const TAB_NOTIFICATION_COUNT_ATTRIBUTE = `${TAB_NOTIFICATION_CLASS}-count`;
-const TAB_NOTIFICATION_ERROR_ATTRIBUTE = `${TAB_NOTIFICATION_CLASS}-error`
-const TAB_NOTIFICATION_STYLE_ATTRIBUTE = `${TAB_NOTIFICATION_CLASS}-style`
+(() => {
+    const tabNotificationClass = 'tab-notification';
+    const tabNotificationCountAttribute = `${tabNotificationClass}-count`;
+    const tabNotificationErrorAttribute = `${tabNotificationClass}-error`
+    const tabNotificationStyleAttribute = `${tabNotificationClass}-style`
 
-document.querySelectorAll(`.\${TAB_NOTIFICATION_CLASS}`).forEach((e, i) => {
-    const count = e.getAttribute(TAB_NOTIFICATION_COUNT_ATTRIBUTE);
-    const isError = e.getAttribute(TAB_NOTIFICATION_ERROR_ATTRIBUTE) === "";
-    const overrideStyle = e.getAttribute(TAB_NOTIFICATION_STYLE_ATTRIBUTE) ?? "";
+    document.querySelectorAll('.' + tabNotificationClass).forEach((e, i) => {
+        const count = e.getAttribute(tabNotificationCountAttribute);
+        const isError = e.getAttribute(tabNotificationErrorAttribute) === '';
+        const overrideStyle = e.getAttribute(tabNotificationStyleAttribute) ?? '';
 
-    if (count && +count === 0) return;
-    let glanceWidgetContainer = e.closest(`.widget-group-content`);
+        if (count && +count === 0) return;
+        let glanceWidgetContainer = e.closest(`.widget-group-content`);
 
-    let glanceWidgetTabTarget, glanceWidgetTab;
-    if (glanceWidgetContainer) {
-        glanceWidgetTabTarget = `#${glanceWidgetContainer.getAttribute('aria-labelledby')}`;
-        glanceWidgetTab = document.querySelector(glanceWidgetTabTarget);
-    } else {
-        glanceWidgetContainer = e.closest(`.widget`);
-        glanceWidgetTab = glanceWidgetContainer.querySelector('.widget-header h2 a');
-        glanceWidgetTab.classList.add(`${TAB_NOTIFICATION_CLASS}-${i}`)
-        glanceWidgetTabTarget = `.${TAB_NOTIFICATION_CLASS}-${i}`;
-    }
+        let glanceWidgetTabTarget, glanceWidgetTab;
+        if (glanceWidgetContainer) {
+            glanceWidgetTabTarget = `#${glanceWidgetContainer.getAttribute('aria-labelledby')}`;
+            glanceWidgetTab = document.querySelector(glanceWidgetTabTarget);
+        } else {
+            glanceWidgetContainer = e.closest(`.widget`);
+            glanceWidgetTab = glanceWidgetContainer.querySelector('.widget-header h2 a');
+            glanceWidgetTab.classList.add(`${tabNotificationClass}-${i}`)
+            glanceWidgetTabTarget = `.${tabNotificationClass}-${i}`;
+        }
 
-    if (!glanceWidgetTab) return;
-    const tabTitle = e.getAttribute('tab-title');
-    if (tabTitle) glanceWidgetTab.setAttribute('title', tabTitle);
+        if (!glanceWidgetTab) return;
+        const tabTitle = e.getAttribute('tab-title');
+        if (tabTitle) glanceWidgetTab.setAttribute('title', tabTitle);
 
-    const style = document.createElement('style');
-    style.innerHTML = `
+        const style = document.createElement('style');
+        style.innerHTML = `
       ${glanceWidgetTabTarget}::after {
         content: '${count}';
         display: inline-flex;
@@ -42,5 +43,6 @@ document.querySelectorAll(`.\${TAB_NOTIFICATION_CLASS}`).forEach((e, i) => {
         line-height: 1.5rem;
         ${overrideStyle}
       }`;
-    document.head.appendChild(style);
-});
+        document.head.appendChild(style);
+    });
+})();
