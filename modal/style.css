@@ -1,5 +1,8 @@
 .modal {
-    display: none;
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
+    transform: scaleY(0);
     position: fixed;
     top: 0;
     left: 0;
@@ -7,11 +10,10 @@
     height: 100%;
     justify-content: center;
     align-items: center;
-    opacity: 0;
     transition: opacity 0.3s ease;
-    z-index: 15;
+    z-index: 16;
     --space-vertical: 1.5rem;
-    --space-horizontal: 3rem;
+    --space-horizontal: 1.5rem;
 }
 
 .modal::before {
@@ -27,8 +29,9 @@
 }
 
 .modal.show {
-    display: flex;
     opacity: 1;
+    visibility: visible;
+    transform: scaleY(1);
 }
 
 .modal.show::before {
@@ -118,21 +121,29 @@
 }
 
 .modal .modal-content {
+    width: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .modal .close {
     cursor: pointer;
-    font-size: 25px;
-    width: 25px;
-    height: 25px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: absolute;
     top: 10px;
     right: 10px;
+    user-select: none;
+}
+
+.modal .close:hover {
+    background-color: var(--color-negative);
+    border-radius: var(--border-radius);
+    color: var(--color-background);
 }
 
 .modal .modal-header {

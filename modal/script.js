@@ -1,3 +1,4 @@
+
 const ENUM_WIDTH = {
     SMALL: 'small',
     MEDIUM: 'medium',
@@ -15,16 +16,16 @@ const ENUM_HEIGHT = {
 const modalWrapper = document.createElement('div');
 modalWrapper.className = 'modal';
 modalWrapper.innerHTML = `
-    <div class="modal-container">
+      <div class="modal-container">
         <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-header-content"></div>
-            </div>
-            <div class="modal-body"></div>
-            <div class="modal-footer"></div>
+          <div class="modal-header">
+            <div class="modal-header-content"></div>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer"></div>
         </div>
-    </div>
-`;
+      </div>
+  `;
 document.body.appendChild(modalWrapper);
 
 const closeBtnElement = document.createElement('span');
@@ -95,7 +96,7 @@ document.addEventListener('click', (e) => {
             modalContainer.style.removeProperty('height');
         }
 
-        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
         setTimeout(() => modal.classList.add('show'), 10);
         document.body.style.overflow = 'hidden';
     }
@@ -110,9 +111,9 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-const closeModal = () => {
+function closeModal() {
+    modal.style.visibility = 'hidden';
     modal.classList.remove('show');
-    modal.style.display = 'none';
     modalBody.innerHTML = '';
     document.body.style.overflow = bodyOverflowState;
 }
