@@ -1,8 +1,9 @@
 const SWIPE_WRAP_AROUND = false;
-
 const EXCLUDED_CLASS = [
     'carousel-container',
     'mobile-navigation-page-links',
+    'widget-exclude-swipe', // can be added in css-class to exclude widgets
+    'modal', // for the modal
 ]
 const EXCLUDED_TAGS = [
     'iframe'
