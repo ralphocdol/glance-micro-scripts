@@ -46,4 +46,4 @@ You can use the class `glimpsable-custom` for custom HTML layouts, along with at
 </ul>
 ```
 
-But this may not work perfectly as of now.
+But this may not work that accurately as of now.
