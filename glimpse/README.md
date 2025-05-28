@@ -37,3 +37,13 @@ You can enable search on other pages by adding their slugs to the `otherPagesSlu
 
 Slugs are used instead of titles or page names since they can be [custom-defined](https://github.com/glanceapp/glance/blob/v0.8.3/docs/configuration.md#slug).
 
+## Custom layout
+You can use the class `glimpsable-custom` for custom HTML layouts, along with attributes `glimpse-list` and `glimpse-item`.
+```HTML
+<ul glimpse-list>
+    <li glimpse-list>1</li>
+    <li glimpse-list>2</li>
+</ul>
+```
+
+But this may not work perfectly as of now.
