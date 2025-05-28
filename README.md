@@ -10,7 +10,7 @@
 | [Swipe Left and Right](swipe-left-and-right/) | YES | NO | v0.8.3  |
 | [Modal](modal/) | YES | NO | v0.8.3  |
 | [Tab Notification](tab-notification/) | YES | YES | v0.8.3  |
-| [Glimpse (Quick Launch)](tab-notification/) | PARTIAL | PARTIAL | v0.8.3  |
+| [Glimpse (Quick Launch)](glimpse/) | PARTIAL | PARTIAL | v0.8.3  |
 
 
 ### Limitations
