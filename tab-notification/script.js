@@ -1,10 +1,12 @@
 const TAB_NOTIFICATION_CLASS = 'tab-notification';
 const TAB_NOTIFICATION_COUNT_ATTRIBUTE = `${TAB_NOTIFICATION_CLASS}-count`;
-const TAB_NOTIFICATION_ERROR_ATTRIBUTE = `${TAB_NOTIFICATION_CLASS}-error`;
+const TAB_NOTIFICATION_ERROR_ATTRIBUTE = `${TAB_NOTIFICATION_CLASS}-error`
+const TAB_NOTIFICATION_STYLE_ATTRIBUTE = `${TAB_NOTIFICATION_CLASS}-style`
 
-document.querySelectorAll(`.${TAB_NOTIFICATION_CLASS}`).forEach((e, i) => {
+document.querySelectorAll(`.\${TAB_NOTIFICATION_CLASS}`).forEach((e, i) => {
     const count = e.getAttribute(TAB_NOTIFICATION_COUNT_ATTRIBUTE);
     const isError = e.getAttribute(TAB_NOTIFICATION_ERROR_ATTRIBUTE) === "";
+    const overrideStyle = e.getAttribute(TAB_NOTIFICATION_STYLE_ATTRIBUTE) ?? "";
 
     if (count && +count === 0) return;
     let glanceWidgetContainer = e.closest(`.widget-group-content`);
@@ -38,6 +40,7 @@ document.querySelectorAll(`.${TAB_NOTIFICATION_CLASS}`).forEach((e, i) => {
         font-size: 1rem;
         white-space: nowrap;
         line-height: 1.5rem;
-      }`
+        ${overrideStyle}
+      }`;
     document.head.appendChild(style);
 });
