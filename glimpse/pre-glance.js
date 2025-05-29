@@ -72,17 +72,12 @@
     }
 
     function searchScrape(contentElement) {
-      const widgetSelectors = [
-        { listSelector: 'ul.list', itemSelector: 'li' },
-        { listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' },
-        { listSelector: '.cards-horizontal', itemSelector: '.card' },
-      ];
       contentElement.querySelectorAll('.page-columns').forEach(column => {
         column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks')
           .forEach(widget => {
-            widgetSelectors.forEach(({ listSelector, itemSelector }) => {
-              createFilteredWidget({ widget, textValue, listSelector, itemSelector });
-            });
+            createFilteredWidget({ widget, textValue, listSelector: 'ul.list', itemSelector: 'li' });
+            createFilteredWidget({ widget, textValue, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' });
+            createFilteredWidget({ widget, textValue, listSelector: '.cards-horizontal', itemSelector: '.card' });
           });
 
         column.querySelectorAll('.glimpsable-custom').forEach(widget => {
