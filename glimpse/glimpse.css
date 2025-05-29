@@ -82,6 +82,42 @@
   font-size: 2rem;
 }
 
+#glimpse .glimpse-suggest {
+  display: none;
+  background: var(--color-widget-background);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-widget-content-border);
+  box-shadow: 0px 3px 0px 0px hsl(var(--bghs), calc(var(--scheme) (var(--scheme) var(--bgl)) - 0.5%));
+  padding: 10px;
+  overflow-y: auto;
+}
+
+#glimpse .glimpse-suggest ul {
+  display: flex;
+  flex: 1;
+}
+
+#glimpse .glimpse-suggest li {
+  display: flex;
+  flex: 1;
+  text-align: center;
+  align-content: center;
+}
+
+#glimpse .glimpse-suggest li a {
+  flex: 1;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 10px 15px;
+}
+
+#glimpse .glimpse-suggest li:hover {
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius);
+  color: var(--color-background);
+}
 
 #glimpse.fade-in {
   animation: fadeIn 0.5s backwards cubic-bezier(0.16, 1, 0.3, 1);

@@ -4,6 +4,9 @@
     // Search Widget goes here
   `;
 
+  const searchEngineEndpoint = ``;
+  const searchSuggestEndpoint = ``;
+
   // Other page search may or may not work due to limitations, and is slow
   const otherPagesSlug = [
     // 'page-1',
@@ -39,6 +42,14 @@
   const glimpseSearch = document.querySelector('#glimpse .glimpse-search');
   [...search.childNodes].forEach(child => glimpseSearch.appendChild(child.cloneNode(true)));
 
+  const searchSuggestContainer = document.createElement('div');
+  searchSuggestContainer.className = 'widget glimpse-suggest';
+  searchSuggestContainer.innerHTML = ``;
+  glimpseSearch.appendChild(searchSuggestContainer);
+
+  const searchSuggestListContainer = glimpseSearch.querySelector('.glimpse-suggest');
+  searchSuggestListContainer.style.display = 'none';
+
   const closeBtnElement = document.createElement('span');
   closeBtnElement.className = 'close';
   closeBtnElement.textContent = '\u00D7';
@@ -59,11 +70,17 @@
     };
   };
 
+  let controller;
   let lastCallId = 0;
   const handleInput = debounce(async (e) => {
     const callId = ++lastCallId;
+    if (controller) controller.abort();
+    controller = new AbortController();
+    const signal = controller.signal;
 
     glimpseResult.innerHTML = '';
+    searchSuggestListContainer.innerHTML = '';
+    searchSuggestListContainer.style.display = 'none';
     activeIframes.forEach(f => f.remove());
     activeIframes = [];
     const query = (e.target.value || '').trim().toLowerCase();
@@ -75,11 +92,12 @@
     glimpseWrapper.appendChild(loadingAnimationElement);
     try {
       await Promise.allSettled([
+        showSearchSuggestion({ query, signal }),
         searchScrape({ contentElement: glanceContent, query, callId }),
         ...otherPagesSlug.map(slug => otherPageScrape({ slug, query, callId }))
       ]);
       if (callId !== lastCallId) return;
-      if (glimpseResult.innerHTML == '') glimpseResult.innerText = 'Nothing found...';
+      if (glimpseResult.innerHTML == '') glimpseResult.innerText = 'No widget found...';
     } catch (err) {
       if (err.name !== 'AbortError') console.error(`Glimpse Error: ${err}`);
     } finally {
@@ -149,6 +167,28 @@
         resolve();
       };
     });
+  }
+
+  async function showSearchSuggestion({ query, signal }) {
+    const getSuggestion = await fetch(searchSuggestEndpoint + encodeURIComponent(query), { signal });
+    const result = await getSuggestion.json();
+    if (!result.length) {
+      searchSuggestListContainer.innerHTML = '';
+      searchSuggestListContainer.style.display = 'none';
+      return;
+    }
+    const searchEngine = searchEngineEndpoint.replace('!QUERY!', '');
+    const newWidget = document.createElement('ul');
+    newWidget.innerHTML = `
+      ${result[1].map(r => `
+        <li>
+          <a href="${searchEngine}${encodeURIComponent(r)}" target="_blank">${r}</a>
+        </li>`).join('')
+      }
+    `;
+
+    searchSuggestListContainer.style.display = 'flex';
+    searchSuggestListContainer.replaceChildren(newWidget);
   }
 
   async function createFilteredWidget({ widget, query, callId, listSelector, itemSelector }) {
