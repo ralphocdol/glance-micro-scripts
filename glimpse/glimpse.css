@@ -44,7 +44,6 @@
 }
 
 #glimpse .glimpse-result {
-  flex: 1;
   overflow-y: auto;
   padding-right: 1rem;
   margin-right: -1rem;

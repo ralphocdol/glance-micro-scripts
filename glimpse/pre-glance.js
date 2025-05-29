@@ -12,9 +12,17 @@
 
   const glimpseKey = 's'; // Can not override the Glance's default key 's' to focus.
 
+  const loadingAnimationElement = document.createElement('div');
+  loadingAnimationElement.className = 'custom-page-loading-container';
+  loadingAnimationElement.innerHTML = `
+    <div class="visually-hidden">Loading</div>
+    <div class="loading-icon" aria-hidden="true"></div>
+  `;
+
   const parseGlanceSearch = new DOMParser();
   const doc = parseGlanceSearch.parseFromString(glanceSearch, 'text/html');
   const search = doc.body.firstElementChild;
+
   if (!search) return;
 
   const glimpse = document.createElement('div');
@@ -38,9 +46,11 @@
   glimpseSearch.querySelector('.widget-header').appendChild(closeBtnElement);
 
   const searchInput = glimpse.querySelector('.search-input');
+  const glimpseWrapper = glimpse.querySelector('.glimpse-wrapper');
   const glimpseResult = glimpse.querySelector('.glimpse-result');
   const glanceContent = document.querySelector('#page-content');
 
+  let activeIframes = [];
   const debounce = (fn, delay) => {
     let timeout;
     return (...args) => {
@@ -49,42 +59,61 @@
     };
   };
 
-  const handleInput = debounce((e) => {
-
+  const handleInput = debounce(async (e) => {
     glimpseResult.innerHTML = '';
+    activeIframes.forEach(f => f.remove());
+    activeIframes = [];
     const textValue = (e.target.value || '').trim().toLowerCase();
     if (textValue.length < 1) return;
-    searchScrape(glanceContent);
 
-    otherPagesSlug.forEach(p => otherPageScrape(p));
+    glimpseWrapper.appendChild(loadingAnimationElement);
+    await searchScrape(glanceContent);
+    for (const slug of otherPagesSlug) {
+      await Promise.allSettled([
+        otherPageScrape(slug)
+      ]);
+    }
+    loadingAnimationElement.remove();
 
-    function otherPageScrape(src) {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = `/${src}`;
-      document.body.appendChild(iframe);
-      iframe.onload = async () => {
-        const doc = iframe.contentDocument;
-        while (!doc.body.classList.contains('page-columns-transitioned')) await new Promise(resolve => setTimeout(resolve, 50));
-        searchScrape(doc.querySelector('#page-content'))
-        iframe.remove();
-      }
+    async function otherPageScrape(src) {
+      return new Promise((resolve) => {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = `/${src}`;
+        document.body.appendChild(iframe);
+        activeIframes.push(iframe);
+
+        iframe.onload = async () => {
+          const doc = iframe.contentDocument;
+          while (!doc.body.classList.contains('page-columns-transitioned')) {
+            await new Promise(r => setTimeout(r, 50));
+            if (!activeIframes.includes(iframe)) break;
+          }
+          await searchScrape(doc.querySelector('#page-content'));
+          iframe.remove();
+          activeIframes = activeIframes.filter(f => f !== iframe);
+          resolve();
+        };
+      });
     }
 
-    function searchScrape(contentElement) {
-      contentElement.querySelectorAll('.page-columns').forEach(column => {
-        column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks')
-          .forEach(widget => {
-            createFilteredWidget({ widget, textValue, listSelector: 'ul.list', itemSelector: 'li' });
-            createFilteredWidget({ widget, textValue, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' });
-            createFilteredWidget({ widget, textValue, listSelector: '.cards-horizontal', itemSelector: '.card' });
-          });
-
-        column.querySelectorAll('.glimpsable-custom').forEach(widget => {
-          createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]' });
-          createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' });
-        });
-      });
+    async function searchScrape(contentElement) {
+      for (const column of contentElement.querySelectorAll('.page-columns')) {
+        const widgets = column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks');
+        for (const widget of widgets) {
+          await Promise.allSettled([
+            createFilteredWidget({ widget, textValue, listSelector: 'ul.list', itemSelector: 'li' }),
+            createFilteredWidget({ widget, textValue, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' }),
+            createFilteredWidget({ widget, textValue, listSelector: '.cards-horizontal', itemSelector: '.card' }),
+          ]);
+        }
+        for (const widget of column.querySelectorAll('.glimpsable-custom')) {
+          await Promise.allSettled([
+            createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]' }),
+            createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' }),
+          ]);
+        }
+      }
     }
   }, 300);
 
@@ -108,53 +137,56 @@
     searchInput.blur();
   }
 
-  function createFilteredWidget({ widget, textValue, listSelector, itemSelector }) {
-    const headerSource = widget.querySelector('.widget-header > h2')?.innerText;
-    const widgetContent = widget.querySelector('.widget-content');
-    const widgetContentClone = sanitizeWidgetContent(widgetContent);
-    const ulLists = widgetContentClone.querySelectorAll(listSelector);
-    if (!ulLists.length) return;
+  async function createFilteredWidget({ widget, textValue, listSelector, itemSelector }) {
+    return new Promise((resolve) => {
+      const headerSource = widget.querySelector('.widget-header > h2')?.innerText;
+      const widgetContent = widget.querySelector('.widget-content');
+      const widgetContentClone = sanitizeWidgetContent(widgetContent);
+      const ulLists = widgetContentClone.querySelectorAll(listSelector);
+      if (!ulLists.length) return resolve();
 
-    const resultSearch = [...ulLists].flatMap(ul => {
-      const items = itemSelector ? ul.querySelectorAll(`:scope > ${itemSelector}`) : [ul];
-      return [...items].filter(el =>
-        (el?.innerText || '')
-          .replace(/\n/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .toLowerCase()
-          .includes(textValue)
-      );
+      const resultSearch = [...ulLists].flatMap(ul => {
+        const items = itemSelector ? ul.querySelectorAll(`:scope > ${itemSelector}`) : [ul];
+        return [...items].filter(el =>
+          (el?.innerText || '')
+            .replace(/\n/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase()
+            .includes(textValue)
+        );
+      });
+      if (!resultSearch.length) return resolve();
+
+      const newWidget = document.createElement('div');
+      newWidget.className = 'widget';
+      newWidget.innerHTML = `<div class="widget-header"><h2 class="uppercase"></h2></div>`;
+
+      const header = newWidget.querySelector('h2');
+      header.innerText = headerSource
+        ?? document.getElementById(widgetContent.closest('.widget-group-content')?.getAttribute('aria-labelledby'))?.innerText
+        ?? '';
+
+      widgetContentClone.innerHTML = '';
+      newWidget.appendChild(widgetContentClone);
+
+      const ulClone = ulLists[0].cloneNode(true);
+      ulClone.innerHTML = '';
+      ulClone.removeAttribute('data-collapse-after');
+      ulClone.classList.add('container-expanded');
+      newWidget.querySelector('.widget-content').appendChild(ulClone);
+
+      resultSearch.forEach((el, i) => {
+        const clone = el.cloneNode(true);
+        clone.classList.add('collapsible-item');
+        clone.style.setProperty('animation-delay', `${i * 20}ms`);
+        clone.querySelectorAll('img').forEach(img => img.removeAttribute('loading'));
+        ulClone.appendChild(clone);
+      });
+
+      glimpseResult.appendChild(newWidget);
+      resolve();
     });
-    if (!resultSearch.length) return;
-
-    const newWidget = document.createElement('div');
-    newWidget.className = 'widget';
-    newWidget.innerHTML = `<div class="widget-header"><h2 class="uppercase"></h2></div>`;
-
-    const header = newWidget.querySelector('h2');
-    header.innerText = headerSource
-      ?? document.getElementById(widgetContent.closest('.widget-group-content')?.getAttribute('aria-labelledby'))?.innerText
-      ?? '';
-
-    widgetContentClone.innerHTML = '';
-    newWidget.appendChild(widgetContentClone);
-
-    const ulClone = ulLists[0].cloneNode(true);
-    ulClone.innerHTML = '';
-    ulClone.removeAttribute('data-collapse-after');
-    ulClone.classList.add('container-expanded');
-    newWidget.querySelector('.widget-content').appendChild(ulClone);
-
-    resultSearch.forEach((el, i) => {
-      const clone = el.cloneNode(true);
-      clone.classList.add('collapsible-item');
-      clone.style.setProperty('animation-delay', `${i * 20}ms`);
-      clone.querySelectorAll('img').forEach(img => img.removeAttribute('loading'));
-      ulClone.appendChild(clone);
-    });
-
-    glimpseResult.appendChild(newWidget);
   }
 
   function sanitizeWidgetContent(element) {
