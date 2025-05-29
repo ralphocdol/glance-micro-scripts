@@ -59,20 +59,32 @@
     };
   };
 
+  let lastCallId = 0;
   const handleInput = debounce(async (e) => {
+    const callId = ++lastCallId;
+
     glimpseResult.innerHTML = '';
     activeIframes.forEach(f => f.remove());
     activeIframes = [];
     const query = (e.target.value || '').trim().toLowerCase();
-    if (query.length < 1) return;
+    if (query.length < 1) {
+      loadingAnimationElement.remove();
+      return;
+    }
 
     glimpseWrapper.appendChild(loadingAnimationElement);
-    await Promise.allSettled([
-      searchScrape(glanceContent, query),
-      ...otherPagesSlug.map(slug => otherPageScrape(slug, query))
-    ]);
-    if (!glimpseResult.innerHTML) glimpseResult.innerText = 'Nothing found...';
-    loadingAnimationElement.remove();
+    try {
+      await Promise.allSettled([
+        searchScrape({ contentElement: glanceContent, query, callId }),
+        ...otherPagesSlug.map(slug => otherPageScrape({ slug, query, callId }))
+      ]);
+      if (callId !== lastCallId) return;
+      if (glimpseResult.innerHTML == '') glimpseResult.innerText = 'Nothing found...';
+    } catch (err) {
+      if (err.name !== 'AbortError') console.error(`Glimpse Error: ${err}`);
+    } finally {
+      if (callId === lastCallId) loadingAnimationElement.remove();
+    }
 
   }, 300);
 
@@ -96,30 +108,32 @@
     searchInput.blur();
   }
 
-  async function searchScrape(contentElement, query) {
+  async function searchScrape({ contentElement, query, callId }) {
     for (const column of contentElement.querySelectorAll('.page-columns')) {
+      if (callId !== lastCallId) return;
       const widgets = column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks');
       for (const widget of widgets) {
         await Promise.allSettled([
-          createFilteredWidget({ widget, query, listSelector: 'ul.list', itemSelector: 'li' }),
-          createFilteredWidget({ widget, query, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' }),
-          createFilteredWidget({ widget, query, listSelector: '.cards-horizontal', itemSelector: '.card' }),
+          createFilteredWidget({ widget, query, callId, listSelector: 'ul.list', itemSelector: 'li' }),
+          createFilteredWidget({ widget, query, callId, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' }),
+          createFilteredWidget({ widget, query, callId, listSelector: '.cards-horizontal', itemSelector: '.card' }),
         ]);
       }
       for (const widget of column.querySelectorAll('.glimpsable-custom')) {
         await Promise.allSettled([
-          createFilteredWidget({ widget, query, listSelector: '[glimpse-list]' }),
-          createFilteredWidget({ widget, query, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' }),
+          createFilteredWidget({ widget, query, callId, listSelector: '[glimpse-list]' }),
+          createFilteredWidget({ widget, query, callId, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' }),
         ]);
       }
     }
   }
 
-  async function otherPageScrape(src, query) {
+  async function otherPageScrape({ slug, query, callId }) {
     return new Promise((resolve) => {
+      if (callId !== lastCallId) return resolve();
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = `/${src}`;
+      iframe.src = `/${slug}`;
       glimpse.appendChild(iframe);
       activeIframes.push(iframe);
 
@@ -129,15 +143,15 @@
           await new Promise(r => setTimeout(r, 50));
           if (!activeIframes.includes(iframe)) break;
         }
-        await searchScrape(doc.querySelector('#page-content'), query);
+        await searchScrape({ contentElement: doc.querySelector('#page-content'), query, callId });
         iframe.remove();
         activeIframes = activeIframes.filter(f => f !== iframe);
         resolve();
-      }
+      };
     });
   }
 
-  async function createFilteredWidget({ widget, query, listSelector, itemSelector }) {
+  async function createFilteredWidget({ widget, query, callId, listSelector, itemSelector }) {
     return new Promise((resolve) => {
       const headerSource = widget.querySelector('.widget-header > h2')?.innerText;
       const widgetContent = widget.querySelector('.widget-content');
@@ -184,6 +198,7 @@
         ulClone.appendChild(clone);
       });
 
+      if (callId !== lastCallId) return resolve();
       glimpseResult.appendChild(newWidget);
       resolve();
     });
