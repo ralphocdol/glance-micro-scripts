@@ -63,58 +63,19 @@
     glimpseResult.innerHTML = '';
     activeIframes.forEach(f => f.remove());
     activeIframes = [];
-    const textValue = (e.target.value || '').trim().toLowerCase();
-    if (textValue.length < 1) return;
+    const query = (e.target.value || '').trim().toLowerCase();
+    if (query.length < 1) return;
 
     glimpseWrapper.appendChild(loadingAnimationElement);
-    await searchScrape(glanceContent);
+    await searchScrape(glanceContent, query);
     for (const slug of otherPagesSlug) {
       await Promise.allSettled([
-        otherPageScrape(slug)
+        otherPageScrape(slug, query)
       ]);
     }
+    if (!glimpseResult.innerHTML) glimpseResult.innerText = 'Nothing found...';
     loadingAnimationElement.remove();
 
-    async function otherPageScrape(src) {
-      return new Promise((resolve) => {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = `/${src}`;
-        document.body.appendChild(iframe);
-        activeIframes.push(iframe);
-
-        iframe.onload = async () => {
-          const doc = iframe.contentDocument;
-          while (!doc.body.classList.contains('page-columns-transitioned')) {
-            await new Promise(r => setTimeout(r, 50));
-            if (!activeIframes.includes(iframe)) break;
-          }
-          await searchScrape(doc.querySelector('#page-content'));
-          iframe.remove();
-          activeIframes = activeIframes.filter(f => f !== iframe);
-          resolve();
-        };
-      });
-    }
-
-    async function searchScrape(contentElement) {
-      for (const column of contentElement.querySelectorAll('.page-columns')) {
-        const widgets = column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks');
-        for (const widget of widgets) {
-          await Promise.allSettled([
-            createFilteredWidget({ widget, textValue, listSelector: 'ul.list', itemSelector: 'li' }),
-            createFilteredWidget({ widget, textValue, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' }),
-            createFilteredWidget({ widget, textValue, listSelector: '.cards-horizontal', itemSelector: '.card' }),
-          ]);
-        }
-        for (const widget of column.querySelectorAll('.glimpsable-custom')) {
-          await Promise.allSettled([
-            createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]' }),
-            createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' }),
-          ]);
-        }
-      }
-    }
   }, 300);
 
   searchInput.addEventListener('input', handleInput);
@@ -137,7 +98,48 @@
     searchInput.blur();
   }
 
-  async function createFilteredWidget({ widget, textValue, listSelector, itemSelector }) {
+  async function searchScrape(contentElement, query) {
+    for (const column of contentElement.querySelectorAll('.page-columns')) {
+      const widgets = column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks');
+      for (const widget of widgets) {
+        await Promise.allSettled([
+          createFilteredWidget({ widget, query, listSelector: 'ul.list', itemSelector: 'li' }),
+          createFilteredWidget({ widget, query, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' }),
+          createFilteredWidget({ widget, query, listSelector: '.cards-horizontal', itemSelector: '.card' }),
+        ]);
+      }
+      for (const widget of column.querySelectorAll('.glimpsable-custom')) {
+        await Promise.allSettled([
+          createFilteredWidget({ widget, query, listSelector: '[glimpse-list]' }),
+          createFilteredWidget({ widget, query, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' }),
+        ]);
+      }
+    }
+  }
+
+  async function otherPageScrape(src, query) {
+    return new Promise((resolve) => {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = `/${src}`;
+      glimpse.appendChild(iframe);
+      activeIframes.push(iframe);
+
+      iframe.onload = async () => {
+        const doc = iframe.contentDocument;
+        while (!doc.body.classList.contains('page-columns-transitioned')) {
+          await new Promise(r => setTimeout(r, 50));
+          if (!activeIframes.includes(iframe)) break;
+        }
+        await searchScrape(doc.querySelector('#page-content'), query);
+        iframe.remove();
+        activeIframes = activeIframes.filter(f => f !== iframe);
+        resolve();
+      }
+    });
+  }
+
+  async function createFilteredWidget({ widget, query, listSelector, itemSelector }) {
     return new Promise((resolve) => {
       const headerSource = widget.querySelector('.widget-header > h2')?.innerText;
       const widgetContent = widget.querySelector('.widget-content');
@@ -153,7 +155,7 @@
             .replace(/\s+/g, ' ')
             .trim()
             .toLowerCase()
-            .includes(textValue)
+            .includes(query)
         );
       });
       if (!resultSearch.length) return resolve();
