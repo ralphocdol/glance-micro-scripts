@@ -67,12 +67,10 @@
     if (query.length < 1) return;
 
     glimpseWrapper.appendChild(loadingAnimationElement);
-    await searchScrape(glanceContent, query);
-    for (const slug of otherPagesSlug) {
-      await Promise.allSettled([
-        otherPageScrape(slug, query)
-      ]);
-    }
+    await Promise.allSettled([
+      searchScrape(glanceContent, query),
+      ...otherPagesSlug.map(slug => otherPageScrape(slug, query))
+    ]);
     if (!glimpseResult.innerHTML) glimpseResult.innerText = 'Nothing found...';
     loadingAnimationElement.remove();
 
