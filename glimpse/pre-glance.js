@@ -31,10 +31,7 @@
   const bodyOverflowState = document.body.style.overflow;
   const glimpseSearch = document.querySelector('#glimpse .glimpse-search');
   [...search.childNodes].forEach(child => glimpseSearch.appendChild(child.cloneNode(true)));
-  if (!glanceSearch) {
-    search.remove();
-    setupSearchBoxes();
-  }
+  if (!glanceSearch) search.remove();
 
   const closeBtnElement = document.createElement('span');
   closeBtnElement.className = 'close';
@@ -63,7 +60,7 @@
 
     otherPagesSlug.forEach(p => otherPageScrape(p));
 
-    function otherPageScrape(src) { 
+    function otherPageScrape(src) {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = `/${src}`;
@@ -75,48 +72,25 @@
         iframe.remove();
       }
     }
-    
+
     function searchScrape(contentElement) {
-      const pageColumns = contentElement.querySelectorAll('.page-columns');
-      pageColumns.forEach(column => {
+      const widgetSelectors = [
+        { listSelector: 'ul.list', itemSelector: 'li' },
+        { listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' },
+        { listSelector: '.cards-horizontal', itemSelector: '.card' },
+      ];
+      contentElement.querySelectorAll('.page-columns').forEach(column => {
         column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks')
           .forEach(widget => {
-            createFilteredWidget({
-              widget,
-              textValue,
-              listSelector: 'ul.list',
-              itemSelector: 'li',
-            });
-
-            createFilteredWidget({
-              widget,
-              textValue,
-              listSelector: 'ul.list-with-separator',
-              itemSelector: '.monitor-site, .docker-container',
-            });
-
-            createFilteredWidget({
-              widget,
-              textValue,
-              listSelector: '.cards-horizontal',
-              itemSelector: '.card',
+            widgetSelectors.forEach(({ listSelector, itemSelector }) => {
+              createFilteredWidget({ widget, textValue, listSelector, itemSelector });
             });
           });
 
-        column.querySelectorAll('.glimpsable-custom')
-          .forEach(widget => {
-            createFilteredWidget({
-              widget,
-              textValue,
-              listSelector: '[glimpse-list]',
-            });
-            createFilteredWidget({
-              widget,
-              textValue,
-              listSelector: '[glimpse-list]',
-              itemSelector: '[glimpse-item]',
-            });
-          });
+        column.querySelectorAll('.glimpsable-custom').forEach(widget => {
+          createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]' });
+          createFilteredWidget({ widget, textValue, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' });
+        });
       });
     }
   }, 300);
@@ -148,36 +122,27 @@
     const ulLists = widgetContentClone.querySelectorAll(listSelector);
     if (!ulLists.length) return;
 
-    const resultSearch = [];
-
-    ulLists.forEach(ul => {
+    const resultSearch = [...ulLists].flatMap(ul => {
       const items = itemSelector ? ul.querySelectorAll(`:scope > ${itemSelector}`) : [ul];
-      const matches = [...items].filter(el => {
-        return [
-          (el?.innerText || '')
-            .replace(/\n/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim()
-            .toLowerCase()
-            .includes(textValue),
-        ].some(Boolean);
-      });
-      resultSearch.push(...matches);
+      return [...items].filter(el =>
+        (el?.innerText || '')
+          .replace(/\n/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toLowerCase()
+          .includes(textValue)
+      );
     });
-    
-    if (resultSearch.length === 0) return;
+    if (!resultSearch.length) return;
 
     const newWidget = document.createElement('div');
     newWidget.className = 'widget';
     newWidget.innerHTML = `<div class="widget-header"><h2 class="uppercase"></h2></div>`;
 
     const header = newWidget.querySelector('h2');
-    if (!headerSource) {
-      const groupId = widgetContent.closest('.widget-group-content')?.getAttribute('aria-labelledby');
-      header.innerText = groupId ? document.getElementById(groupId)?.innerText ?? '' : '';
-    } else {
-      header.innerText = headerSource;
-    }
+    header.innerText = headerSource
+      ?? document.getElementById(widgetContent.closest('.widget-group-content')?.getAttribute('aria-labelledby'))?.innerText
+      ?? '';
 
     widgetContentClone.innerHTML = '';
     newWidget.appendChild(widgetContentClone);
@@ -199,21 +164,20 @@
     glimpseResult.appendChild(newWidget);
   }
 
-
   function sanitizeWidgetContent(element) {
     const newElement = element.cloneNode(true);
     newElement.querySelectorAll('div[data-popover-type]').forEach(e => {
       const fragment = document.createDocumentFragment();
-      Array.from(e.children).forEach(child => {
+      [...e.children].forEach(child => {
         if (!child.hasAttribute('data-popover-html')) fragment.appendChild(child);
       });
       e.replaceWith(fragment);
     });
     newElement.querySelectorAll('[custom-modal]').forEach(e => {
       const fragment = document.createDocumentFragment();
-      Array.from(e.children).forEach(child => {
+      [...e.children].forEach(child => {
         if (!child.hasAttribute('modal-header') && !child.hasAttribute('modal-body') && !child.hasAttribute('modal-footer')) {
-          fragment.appendChild(child)
+          fragment.appendChild(child);
         }
       });
       e.replaceWith(fragment);
