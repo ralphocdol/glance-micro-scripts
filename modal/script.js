@@ -96,8 +96,8 @@
                 modalContainer.style.removeProperty('height');
             }
 
-            modal.style.visibility = 'visible';
-            setTimeout(() => modal.classList.add('show'), 10);
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show', 'fade-in'), 10);
             document.body.style.overflow = 'hidden';
         }
         if (e.target === closeBtn || (modal.hasAttribute('dismiss-on-outside-click') && e.target === modal)) {
@@ -112,8 +112,8 @@
     });
 
     function closeModal() {
-        modal.style.visibility = 'hidden';
-        modal.classList.remove('show');
+        modal.style.display = 'none';
+        modal.classList.remove('show', 'fade-in');
         modalBody.innerHTML = '';
         document.body.style.overflow = bodyOverflowState;
     }
