@@ -15,7 +15,6 @@
   const parseGlanceSearch = new DOMParser();
   const doc = parseGlanceSearch.parseFromString(glanceSearch, 'text/html');
   const search = doc.body.firstElementChild;
-
   if (!search) return;
 
   const glimpse = document.createElement('div');
@@ -31,7 +30,6 @@
   const bodyOverflowState = document.body.style.overflow;
   const glimpseSearch = document.querySelector('#glimpse .glimpse-search');
   [...search.childNodes].forEach(child => glimpseSearch.appendChild(child.cloneNode(true)));
-  if (!glanceSearch) search.remove();
 
   const closeBtnElement = document.createElement('span');
   closeBtnElement.className = 'close';
@@ -50,7 +48,7 @@
       timeout = setTimeout(() => fn(...args), delay);
     };
   };
-  
+
   const handleInput = debounce((e) => {
 
     glimpseResult.innerHTML = '';
