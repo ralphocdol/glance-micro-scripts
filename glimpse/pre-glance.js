@@ -107,8 +107,8 @@
 
   function closeGlimpse() {
     if (!glimpse.classList.contains('show')) return;
-    glimpse.style.visibility = 'hidden';
-    glimpse.classList.remove('show');
+    glimpse.style.display = 'none';
+    glimpse.classList.remove('show', 'fade-in');
     document.body.style.overflow = bodyOverflowState;
     searchInput.blur();
   }
