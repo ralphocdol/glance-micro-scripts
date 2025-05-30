@@ -173,7 +173,7 @@
   async function showSearchSuggestion({ query, signal }) {
     const getSuggestion = await fetch(searchSuggestEndpoint + encodeURIComponent(query), { signal });
     const result = await getSuggestion.json();
-    if (!result.length) {
+    if (!result?.[1].length) {
       searchSuggestListContainer.innerHTML = '';
       searchSuggestListContainer.style.display = 'none';
       return;
