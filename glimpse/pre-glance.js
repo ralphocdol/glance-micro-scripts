@@ -43,7 +43,7 @@
   [...search.childNodes].forEach(child => glimpseSearch.appendChild(child.cloneNode(true)));
 
   const searchSuggestContainer = document.createElement('div');
-  searchSuggestContainer.className = 'widget glimpse-suggest';
+  searchSuggestContainer.className = 'widget-content glimpse-suggest';
   searchSuggestContainer.innerHTML = ``;
   glimpseSearch.appendChild(searchSuggestContainer);
 
