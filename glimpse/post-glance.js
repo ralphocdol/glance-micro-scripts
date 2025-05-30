@@ -3,22 +3,22 @@
   if (!glimpse) return;
 
   const headerNav = document.querySelector('.header-container > .header');
+  if (!headerNav) return;
   const headerSearchNav = createNavElement();
   headerSearchNav.className = 'glimpse-search-nav';
   const navElement = headerNav.querySelector(':scope > nav');
+  if (!navElement) return;
   navElement.parentNode.insertBefore(headerSearchNav, navElement.nextSibling);
 
   const mobileNav = document.querySelector('.mobile-navigation > .mobile-navigation-icons');
+  mobileNav.querySelector('a[href="#top"]').remove(); // This removes the scroll to top
   const mobileSearchNav = createNavElement();
   mobileSearchNav.className = 'mobile-navigation-label';
   mobileNav.prepend(mobileSearchNav);
-  
-  // This removes the scroll to top, you can remove this if needed
-  mobileNav.querySelector('a[href="#top"]').remove();
 
   const searchInput = glimpse.querySelector('.search-input');
 
-  $include: shared.js
+  $include: spawn.js
 
   function createNavElement() {
     const newElement = document.createElement('a');

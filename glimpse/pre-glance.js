@@ -128,7 +128,9 @@
   }
 
   async function searchScrape({ contentElement, query, callId }) {
-    for (const column of contentElement.querySelectorAll('.page-columns')) {
+    const columns = contentElement?.querySelectorAll('.page-columns');
+    if (!columns) return;
+    for (const column of contentElement?.querySelectorAll('.page-columns')) {
       if (callId !== lastCallId) return;
       const widgets = column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks');
       for (const widget of widgets) {
@@ -156,8 +158,20 @@
       glimpse.appendChild(iframe);
       activeIframes.push(iframe);
 
+      iframe.onerror = () => {
+        iframe.remove();
+        activeIframes = activeIframes.filter(f => f !== iframe);
+        resolve();
+      };
+
       iframe.onload = async () => {
         const doc = iframe.contentDocument;
+        const docIs404 = doc.title.includes('404') || !doc.querySelector('#page-content');
+        if (docIs404) {
+          iframe.remove();
+          activeIframes = activeIframes.filter(f => f !== iframe);
+          return resolve();
+        }
         while (!doc.body.classList.contains('page-columns-transitioned')) {
           await new Promise(r => setTimeout(r, 50));
           if (!activeIframes.includes(iframe)) break;
