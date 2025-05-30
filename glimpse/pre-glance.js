@@ -180,10 +180,13 @@
     const searchEngine = searchEngineEndpoint.replace('!QUERY!', '');
     const newWidget = document.createElement('ul');
     newWidget.innerHTML = `
-      ${result[1].map(r => `
-        <li>
-          <a href="${searchEngine}${encodeURIComponent(r)}" target="_blank">${r}</a>
-        </li>`).join('')
+      ${result[1].map(r => {
+        const suggestLink = searchEngine ? searchEngine + encodeURIComponent(r) : '#';
+        const target = searchEngine ? '_blank' : '';
+        return `
+          <li>
+            <a href="${suggestLink}" target="${target}" rel="noreferrer">${r}</a>
+          </li>`}).join('')
       }
     `;
 
