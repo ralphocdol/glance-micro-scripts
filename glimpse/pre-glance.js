@@ -3,18 +3,16 @@
   const glanceSearch = `
     // Search Widget goes here
   `;
-
   const searchEngineEndpoint = ``;
   const searchSuggestEndpoint = ``;
-
   // Other page search may or may not work due to limitations, and is slow
   const pagesSlug = [
     // 'home-page',
     // 'page-1',
     // 'page-2',
   ];
-
   const glimpseKey = 's'; // Can not override the Glance's default key 's' to focus.
+  const waitForGlance = true;
 
   const loadingAnimationElement = document.createElement('div');
   loadingAnimationElement.className = 'custom-page-loading-container';
@@ -113,7 +111,8 @@
   document.addEventListener('keydown', event => {
     if (event.key === glimpseKey && document.activeElement !== searchInput) {
       event.preventDefault();
-      spawnGlimpse();
+      if ((waitForGlance && document.body.classList.contains('page-columns-transitioned')) || !waitForGlance) spawnGlimpse();
+        spawnGlimpse();
     }
     if (event.key === 'Escape') closeGlimpse();
   });

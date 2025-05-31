@@ -81,3 +81,7 @@ Add this property to your widget if you don't want a specific widget to be searc
 ```yml
 css-class: glimpsable-hidden
 ```
+
+## Other user definable variables
+- `glimpseKey` - The shortcut key to call Glimpse, used the 's' by default from Glance
+- `waitForGlance` - Setting this to `false` will make the search and search-bangs functionality of Glance not work as those are loaded after Glance is ready, Glimpse functionality will remain working. This just limits when the `glimpseKey` can be triggered.
