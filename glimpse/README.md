@@ -53,12 +53,31 @@ You can enable search on other pages by adding their slugs to the `pagesSlug` ar
 Slugs are used instead of titles or page names since they can be [custom-defined](https://github.com/glanceapp/glance/blob/v0.8.3/docs/configuration.md#slug).
 
 ## Custom layout
-You can use the class `glimpsable-custom` for custom HTML layouts, along with attributes `glimpse-list` and `glimpse-item`.
-```HTML
-<ul glimpse-list>
-    <li glimpse-item>1</li>
-    <li glimpse-item>2</li>
-</ul>
+> [!CAUTION]
+>
+> Still Experimental, there will be accuracy issues for complex layouts.
+> And this is subject to change a lot...
+
+You can use the class `glimpsable-custom-list` for custom HTML layouts, along with attributes `glimpse-list` and `glimpse-item`.
+```yml
+css-class: glimpsable-custom-list
+template: |
+    <ul glimpse-list>
+        <li glimpse-item>1</li>
+        <li glimpse-item>2</li>
+    </ul>
+```
+or with `glimpsable-custom` with attribute `glimpse`.
+```yml
+css-class: glimpsable-custom
+template: |
+    <div glimpse>
+        Some searchable string
+    </div>
 ```
 
-*But this may not work that accurately as of now.*
+## Exclusions
+Add this property to your widget if you don't want a specific widget to be searched.
+```yml
+css-class: glimpsable-hidden
+```

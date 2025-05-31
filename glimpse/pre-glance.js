@@ -133,19 +133,29 @@
     if (!columns) return;
     for (const column of contentElement?.querySelectorAll('.page-columns')) {
       if (callId !== lastCallId) return;
-      const widgets = column.querySelectorAll('.widget-type-reddit, .widget-type-rss, .glimpsable, .widget-type-monitor, .widget-type-docker-containers, .widget-type-videos, .widget-type-bookmarks');
+      const widgetClasses = [
+        '.widget-type-reddit',
+        '.widget-type-rss',
+        '.widget-type-monitor',
+        '.widget-type-docker-containers',
+        '.widget-type-videos',
+        '.widget-type-bookmarks',
+      ].map(c => `${c}:not(.glimpsable-hidden)`)
+      .concat('.glimpsable')
+      .join(', ');
+      const widgets = column.querySelectorAll(widgetClasses);
       for (const widget of widgets) {
         await Promise.allSettled([
-          createFilteredWidget({ widget, query, callId, listSelector: 'ul.list', itemSelector: 'li' }),
-          createFilteredWidget({ widget, query, callId, listSelector: 'ul.list-with-separator', itemSelector: '.monitor-site, .docker-container' }),
-          createFilteredWidget({ widget, query, callId, listSelector: '.cards-horizontal', itemSelector: '.card' }),
+          createWidgetResult({ widget, query, callId, listSelector: 'ul.list', itemSelector: ':scope > li' }),
+          createWidgetResult({ widget, query, callId, listSelector: 'ul.list-with-separator', itemSelector: ':scope > .monitor-site, .docker-container' }),
+          createWidgetResult({ widget, query, callId, listSelector: '.cards-horizontal', itemSelector: ':scope > .card' }),
         ]);
       }
       for (const widget of column.querySelectorAll('.glimpsable-custom')) {
-        await Promise.allSettled([
-          createFilteredWidget({ widget, query, callId, listSelector: '[glimpse-list]' }),
-          createFilteredWidget({ widget, query, callId, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' }),
-        ]);
+        await createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]' })
+      }
+      for (const widget of column.querySelectorAll('.glimpsable-custom-list')) {
+        await createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' })
       }
     }
   }
@@ -219,7 +229,7 @@
     searchSuggestListContainer.replaceChildren(newWidget);
   }
 
-  async function createFilteredWidget({ widget, query, callId, listSelector, itemSelector }) {
+  async function createWidgetResult({ widget, query, callId, listSelector, itemSelector }) {
     return new Promise((resolve) => {
       const headerSource = widget.querySelector('.widget-header > h2')?.innerText;
       const widgetContent = widget.querySelector('.widget-content');
@@ -228,7 +238,7 @@
       if (!ulLists.length) return resolve();
 
       const resultSearch = [...ulLists].flatMap(ul => {
-        const items = itemSelector ? ul.querySelectorAll(`:scope > ${itemSelector}`) : [ul];
+        const items = itemSelector ? ul.querySelectorAll(itemSelector) : [ul];
         return [...items].filter(el =>
           (el?.innerText || '')
             .replace(/\n/g, ' ')
