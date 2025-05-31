@@ -185,27 +185,31 @@
   }
 
   async function showSearchSuggestion({ query, signal }) {
+    if (!searchSuggestEndpoint) return;
+
+    searchSuggestListContainer.style.display = 'flex';
+    const loadingAnimationClone = loadingAnimationElement.cloneNode(true);
+    loadingAnimationClone.style.flex = 1;
+    searchSuggestListContainer.appendChild(loadingAnimationClone);
+
     const getSuggestion = await fetch(searchSuggestEndpoint + encodeURIComponent(query), { signal });
     const result = await getSuggestion.json();
     if (!result?.[1].length) {
-      searchSuggestListContainer.innerHTML = '';
-      searchSuggestListContainer.style.display = 'none';
+      searchSuggestListContainer.innerHTML = 'No suggestion...';
       return;
     }
     const searchEngine = searchEngineEndpoint.replace('!QUERY!', '');
     const newWidget = document.createElement('ul');
     newWidget.innerHTML = `
       ${result[1].map(r => {
-        const suggestLink = searchEngine ? searchEngine + encodeURIComponent(r) : '#';
-        const target = searchEngine ? '_blank' : '';
-        return `
+      const suggestLink = searchEngine ? searchEngine + encodeURIComponent(r) : '#';
+      const target = searchEngine ? '_blank' : '';
+      return `
           <li>
             <a href="${suggestLink}" target="${target}" rel="noreferrer">${r}</a>
           </li>`}).join('')
       }
     `;
-
-    searchSuggestListContainer.style.display = 'flex';
     searchSuggestListContainer.replaceChildren(newWidget);
   }
 
