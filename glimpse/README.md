@@ -10,7 +10,7 @@ This adds a way to search through your widgets—similar to Quick Launch from [H
 
 # Limitations
 - Only the Docker, Monitor, and recurring HTML structure widgets like RSS are supported. 
-- If you have a `custom-api`, `extension`, or `html` widget that uses the same HTML structure, you can simply add the option `css-class: glimpsable`.
+- If you have a `custom-api`, `extension`, or `html` widget that uses the same HTML structure, you can simply add the property `css-class: glimpsable`.
 - Popovers and similar elements do not work on searched widgets. The scripts have already been initialized and cannot be reinitialized unless you manually copy and reinitialize them with each search—which adds overhead.
 
 # File explanations
