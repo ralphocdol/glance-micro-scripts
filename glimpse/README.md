@@ -18,7 +18,10 @@ _Read the main [README](../#micro-scripts) to learn how this should be `$include
 - `pre-glance.js` - must be added after the DOM is loaded
 - `post-glance.js` - must be added after Glance is loaded
 - `spawn.js` - a shared function that launches Glimpse
-- `glimpse.css` - the...uhm...
+- `glimpse.css` - the...uhm... css, you have to load this with either the [default method](https://github.com/glanceapp/glance/blob/main/docs/configuration.md#custom-css-file) or if you already use the default then you can import it inside:
+    ```css
+    @import url('glimpse.css');
+    ```
 
 # Configurations
 ## Setting up
@@ -50,8 +53,8 @@ Slugs are used instead of titles or page names since they can be [custom-defined
 You can use the class `glimpsable-custom` for custom HTML layouts, along with attributes `glimpse-list` and `glimpse-item`.
 ```HTML
 <ul glimpse-list>
-    <li glimpse-list>1</li>
-    <li glimpse-list>2</li>
+    <li glimpse-item>1</li>
+    <li glimpse-item>2</li>
 </ul>
 ```
 
