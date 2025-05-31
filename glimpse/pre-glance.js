@@ -8,7 +8,8 @@
   const searchSuggestEndpoint = ``;
 
   // Other page search may or may not work due to limitations, and is slow
-  const otherPagesSlug = [
+  const pagesSlug = [
+    // 'home-page',
     // 'page-1',
     // 'page-2',
   ];
@@ -95,7 +96,7 @@
       await Promise.allSettled([
         showSearchSuggestion({ query, signal }),
         searchScrape({ contentElement: glanceContent, query, callId }),
-        ...otherPagesSlug.map(slug => otherPageScrape({ slug, query, callId }))
+        ...pagesSlug.map(slug => otherPageScrape({ slug, query, callId }))
       ]);
       if (callId !== lastCallId) return;
       if (glimpseResult.innerHTML == '') glimpseResult.innerText = 'No widget found...';
@@ -152,9 +153,14 @@
   async function otherPageScrape({ slug, query, callId }) {
     return new Promise((resolve) => {
       if (callId !== lastCallId) return resolve();
+
+      const pathname = `/${slug}`;
+      const currentPathList = window.location.pathname.split('/').filter(p => p !== '');
+      if (pathname === '/' + currentPathList[currentPathList.length - 1]) return resolve();
+
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = `/${slug}`;
+      iframe.src = pathname;
       glimpse.appendChild(iframe);
       activeIframes.push(iframe);
 
