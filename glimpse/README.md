@@ -45,12 +45,18 @@ For `searchEngineEndpoint`, copy the value from the data `data-default-search-ur
 For `searchSuggestEndpoint`, use the URL of your proxy endpoint. If you're using something like [Whoogle-Search](https://github.com/benbusby/whoogle-search), the endpoint would be `/autocomplete?q=`, so you would set it like this: `https://whoogle.mydomain.com/autocomplete?q=`.
 
 ## Other page search
-By default, Glimpse searches only the currently loaded page. To include other pages, set the `pagesSlug` array variable with your main page's slug and any additional pages.
-You can enable search on other pages by adding their slugs to the `pagesSlug` array variable. 
-
-**Note**: this may cause slowdowns or may not work at all due to how it is implemented.
+By default, Glimpse searches only the currently loaded page. To include other pages, set the `pagesSlug` array variable with your primary page's slug and any additional pages.
 
 Slugs are used instead of titles or page names since they can be [custom-defined](https://github.com/glanceapp/glance/blob/v0.8.3/docs/configuration.md#slug).
+
+> [!NOTE]
+>
+> This may lead to performance issues or unreliable behavior due to how it’s implemented.
+>
+> The implementation uses `iframe`s to load additional pages. If widgets on those pages exceed the default timeout, their associated resources may not be released in a timely manner, leading to accumulated overhead—the more pages you include, the more it adds up.
+>
+> The current page where Glimpse was launched will still be prioritized and shown first.
+
 
 ## Custom layout
 > [!CAUTION]
