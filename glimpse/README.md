@@ -1,8 +1,13 @@
 [<= Micro-script list](../#micro-scripts)
 
+### Desktop
+
 ![desktop](preview1.png)
-![mobile](preview3.png)
 ![desktop-button](preview2.png)
+
+### Mobile
+
+![mobile](preview3.png)
 ![mobile-button](preview4.png)
 
 # Overview
