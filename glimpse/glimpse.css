@@ -56,9 +56,9 @@
 
 #glimpse .close {
   cursor: pointer;
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
+  font-size: 22px;
+  width: 25px;
+  height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,6 +113,13 @@
   background-color: var(--color-primary);
   border-radius: var(--border-radius);
   color: var(--color-background);
+}
+
+#glimpse .widget-content {
+  background: var(--color-widget-background);
+  border-radius: var(--border-radius);
+  border: 1px solid hsla(var(--bghs), calc(var(--scheme) (var(--scheme) var(--bgl) + 12%)), 0.5);
+  box-shadow: 0px 3px 0px 0px hsl(var(--bghs), calc(var(--scheme) (var(--scheme) var(--bgl)) - 0.5%));
 }
 
 #glimpse.fade-in {
