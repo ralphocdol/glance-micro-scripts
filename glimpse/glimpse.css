@@ -115,7 +115,7 @@
   color: var(--color-background);
 }
 
-#glimpse .widget-content {
+#glimpse .widget-content:not(.widget-content-frameless) {
   background: var(--color-widget-background);
   border-radius: var(--border-radius);
   border: 1px solid hsla(var(--bghs), calc(var(--scheme) (var(--scheme) var(--bgl) + 12%)), 0.5);
