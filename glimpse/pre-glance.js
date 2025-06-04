@@ -27,6 +27,10 @@
 
   if (!search) return;
 
+  const allPagesSlug = Array.from(document.querySelectorAll('.nav a')).map(a => a.getAttribute('href'));
+  const windowPathname = window.location.pathname;
+  const currentPathList = windowPathname.split('/').filter(p => p !== '');
+
   const glimpse = document.createElement('div');
   glimpse.id = 'glimpse';
   glimpse.className = 'widget-exclude-swipe';
@@ -112,7 +116,6 @@
     if (event.key === glimpseKey && document.activeElement !== searchInput) {
       event.preventDefault();
       if ((waitForGlance && document.body.classList.contains('page-columns-transitioned')) || !waitForGlance) spawnGlimpse();
-        spawnGlimpse();
     }
     if (event.key === 'Escape') closeGlimpse();
   });
@@ -163,13 +166,13 @@
     return new Promise((resolve) => {
       if (callId !== lastCallId) return resolve();
 
-      const pathname = `/${slug}`;
-      const currentPathList = window.location.pathname.split('/').filter(p => p !== '');
-      if (pathname === '/' + currentPathList[currentPathList.length - 1]) return resolve();
+      const targetPathname = `/${slug}`;
+      if (windowPathname === '/' && allPagesSlug.length > 0 && allPagesSlug[0] === targetPathname) return resolve();
+      if (targetPathname === '/' + currentPathList[currentPathList.length - 1]) return resolve();
 
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = pathname;
+      iframe.src = targetPathname;
       glimpse.appendChild(iframe);
       activeIframes.push(iframe);
 
