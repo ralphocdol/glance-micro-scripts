@@ -11,6 +11,7 @@
     // 'page-1',
     // 'page-2',
   ];
+  const cleanupOtherPages = true; // Warning: setting this to false is like having (# of pagesSlug) tabs opened all at once
   const glimpseKey = 's'; // Can not override the Glance's default key 's' to focus.
   const waitForGlance = true;
 
@@ -27,7 +28,7 @@
 
   if (!search) return;
 
-  const allPagesSlug = Array.from(document.querySelectorAll('.nav a')).map(a => a.getAttribute('href'));
+  const mainPagePath = Array.from(document.querySelectorAll('.nav a')).map(a => a.getAttribute('href'))?.[0];
   const windowPathname = window.location.pathname;
   const currentPathList = windowPathname.split('/').filter(p => p !== '');
 
@@ -93,9 +94,9 @@
 
     glimpseWrapper.appendChild(loadingAnimationElement);
     try {
+      await searchScrape({ contentElement: glanceContent, query, callId });
       await Promise.allSettled([
         showSearchSuggestion({ query, signal }),
-        searchScrape({ contentElement: glanceContent, query, callId }),
         ...pagesSlug.map(slug => otherPageScrape({ slug, query, callId }))
       ]);
       if (callId !== lastCallId) return;
@@ -166,7 +167,7 @@
       if (callId !== lastCallId) return resolve();
 
       const targetPathname = `/${slug}`;
-      if (windowPathname === '/' && allPagesSlug.length > 0 && allPagesSlug[0] === targetPathname) return resolve();
+      if (windowPathname === '/' && mainPagePath === targetPathname) return resolve();
       if (targetPathname === '/' + currentPathList[currentPathList.length - 1]) return resolve();
 
       const existingIframe = iframeBySlug[slug];
@@ -209,12 +210,12 @@
   }
 
   function cleanupAllIframes() {
+    if (!cleanupOtherPages) return;
     pagesSlug.forEach(slug => {
       const iframe = iframeBySlug[slug];
-      if (iframe) {
-        if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-        delete iframeBySlug[slug];
-      }
+      if (!iframe) return;
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      delete iframeBySlug[slug];
     });
   }
 
