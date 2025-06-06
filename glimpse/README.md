@@ -40,7 +40,6 @@ Once it’s set up and visible, you’ll need to copy its HTML structure.
 2. In the Elements or Inspector tab, select Glance’s Search element (Ctrl+Shift+C)
 3. Ensure the element has a class containing `widget-type-search`, right-click it, then choose `Copy` > `Copy Outer HTML`
 4. In `pre-glance.js`, paste the copied HTML into the `glanceSearch` variable
-5. Disable Glance’s built-in search to avoid conflicts with the keybinding used by this script
 
 ### Search Suggestion
 Due to [some limitations](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) and the fact this is a client script, you’ll need to proxy external search suggestions (e.g., from DuckDuckGo or Google) using a service like your own Node.js server.
@@ -97,5 +96,5 @@ css-class: glimpsable-hidden
 | Variables           | Default | Description |
 |---------------------|---------|---------------------------|
 | `cleanupOtherPages` | true | Whether to clean the iframes or not. Can lead to high usage if set to `false` but could otherwise speed up your widget queries |
-| `glimpseKey` | s | The shortcut key to call Glimpse, used the 's' by default from Glance |
-| `waitForGlance` | true | Setting this to `false` will make the search and search-bangs functionality of Glance not work as those are loaded after Glance is ready, Glimpse functionality will remain working. This just limits when the `glimpseKey` can be triggered. |
+| `glimpseKey` | '' | The shortcut key to call Glimpse, set to empty `''` by default to disable. *Setting this to `'s'` will override Glance's default search key focus* |
+| `waitForGlance` | true | Setting this to `false` will make the search and search-bangs functionality of Glance not work as those are loaded after Glance is ready, Glimpse functionality will remain working. This just limits when the `glimpseKey` can be triggered |
