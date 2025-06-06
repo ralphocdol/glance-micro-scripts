@@ -5,14 +5,14 @@
   `;
   const searchEngineEndpoint = ``;
   const searchSuggestEndpoint = ``;
-  // Other page search may or may not work due to limitations, and is slow
+  // Other page search may or may not work due to limitations, and can be slow
   const pagesSlug = [
     // 'home-page',
     // 'page-1',
     // 'page-2',
   ];
   const cleanupOtherPages = true; // Warning: setting this to false is like having (# of pagesSlug) tabs opened all at once
-  const glimpseKey = 's'; // Can not override the Glance's default key 's' to focus.
+  const glimpseKey = '';
   const waitForGlance = true;
 
   const loadingAnimationElement = document.createElement('div');
@@ -112,10 +112,18 @@
   searchInput.addEventListener('input', handleInput);
 
   document.addEventListener('keydown', event => {
-    if (event.key === glimpseKey && document.activeElement !== searchInput) {
+    const activeElement = document.activeElement;
+
+    // If Glance's search input is focused then prevent spawn
+    if (activeElement.classList.contains('search-input') && activeElement.closest('.widget-type-search') && !activeElement.closest('#glimpse')) {
+      return;
+    }
+
+    if (glimpseKey && event.key === glimpseKey && activeElement !== searchInput) {
       event.preventDefault();
       if ((waitForGlance && document.body.classList.contains('page-columns-transitioned')) || !waitForGlance) spawnGlimpse();
     }
+
     if (event.key === 'Escape') closeGlimpse();
   });
 
