@@ -94,5 +94,8 @@ css-class: glimpsable-hidden
 ```
 
 ## Other user definable variables
-- `glimpseKey` - The shortcut key to call Glimpse, used the 's' by default from Glance
-- `waitForGlance` - Setting this to `false` will make the search and search-bangs functionality of Glance not work as those are loaded after Glance is ready, Glimpse functionality will remain working. This just limits when the `glimpseKey` can be triggered.
+| Variables           | Default | Description |
+|---------------------|---------|---------------------------|
+| `cleanupOtherPages` | true | Whether to clean the iframes or not. Can lead to high usage if set to `false` but could otherwise speed up your widget queries |
+| `glimpseKey` | s | The shortcut key to call Glimpse, used the 's' by default from Glance |
+| `waitForGlance` | true | Setting this to `false` will make the search and search-bangs functionality of Glance not work as those are loaded after Glance is ready, Glimpse functionality will remain working. This just limits when the `glimpseKey` can be triggered. |

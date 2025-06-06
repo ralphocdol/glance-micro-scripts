@@ -11,6 +11,7 @@
     // 'page-1',
     // 'page-2',
   ];
+  const cleanupOtherPages = true; // Warning: setting this to false is like having (# of pagesSlug) tabs opened all at once
   const glimpseKey = 's'; // Can not override the Glance's default key 's' to focus.
   const waitForGlance = true;
 
@@ -27,7 +28,7 @@
 
   if (!search) return;
 
-  const allPagesSlug = Array.from(document.querySelectorAll('.nav a')).map(a => a.getAttribute('href'));
+  const mainPagePath = Array.from(document.querySelectorAll('.nav a')).map(a => a.getAttribute('href'))?.[0];
   const windowPathname = window.location.pathname;
   const currentPathList = windowPathname.split('/').filter(p => p !== '');
 
@@ -64,8 +65,8 @@
   const glimpseWrapper = glimpse.querySelector('.glimpse-wrapper');
   const glimpseResult = glimpse.querySelector('.glimpse-result');
   const glanceContent = document.querySelector('#page-content');
+  const iframeBySlug = {};
 
-  let activeIframes = [];
   const debounce = (fn, delay) => {
     let timeout;
     return (...args) => {
@@ -85,8 +86,6 @@
     glimpseResult.innerHTML = '';
     searchSuggestListContainer.innerHTML = '';
     searchSuggestListContainer.style.display = 'none';
-    activeIframes.forEach(f => f.remove());
-    activeIframes = [];
     const query = (e.target.value || '').trim().toLowerCase();
     if (query.length < 1) {
       loadingAnimationElement.remove();
@@ -95,9 +94,9 @@
 
     glimpseWrapper.appendChild(loadingAnimationElement);
     try {
+      await searchScrape({ contentElement: glanceContent, query, callId });
       await Promise.allSettled([
         showSearchSuggestion({ query, signal }),
-        searchScrape({ contentElement: glanceContent, query, callId }),
         ...pagesSlug.map(slug => otherPageScrape({ slug, query, callId }))
       ]);
       if (callId !== lastCallId) return;
@@ -124,6 +123,7 @@
 
   function closeGlimpse() {
     if (!glimpse.classList.contains('show')) return;
+    cleanupAllIframes();
     glimpse.style.display = 'none';
     glimpse.classList.remove('show', 'fade-in');
     document.body.style.overflow = bodyOverflowState;
@@ -163,22 +163,30 @@
   }
 
   async function otherPageScrape({ slug, query, callId }) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (callId !== lastCallId) return resolve();
 
       const targetPathname = `/${slug}`;
-      if (windowPathname === '/' && allPagesSlug.length > 0 && allPagesSlug[0] === targetPathname) return resolve();
+      if (windowPathname === '/' && mainPagePath === targetPathname) return resolve();
       if (targetPathname === '/' + currentPathList[currentPathList.length - 1]) return resolve();
+
+      const existingIframe = iframeBySlug[slug];
+      if (existingIframe) {
+        const doc = existingIframe.contentDocument;
+        if (!doc || !doc.body) return resolve();
+
+        await searchScrape({ contentElement: doc.querySelector('#page-content'), query, callId });
+        return resolve();
+      }
 
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = targetPathname;
       glimpse.appendChild(iframe);
-      activeIframes.push(iframe);
+      iframeBySlug[slug] = iframe;
 
       iframe.onerror = () => {
-        iframe.remove();
-        activeIframes = activeIframes.filter(f => f !== iframe);
+        delete iframeBySlug[slug];
         resolve();
       };
 
@@ -186,19 +194,28 @@
         const doc = iframe.contentDocument;
         const docIs404 = doc.title.includes('404') || !doc.querySelector('#page-content');
         if (docIs404) {
-          iframe.remove();
-          activeIframes = activeIframes.filter(f => f !== iframe);
+          delete iframeBySlug[slug];
           return resolve();
         }
+
         while (!doc.body.classList.contains('page-columns-transitioned')) {
           await new Promise(r => setTimeout(r, 50));
-          if (!activeIframes.includes(iframe)) break;
+          if (!iframeBySlug[slug]) break;
         }
+
         await searchScrape({ contentElement: doc.querySelector('#page-content'), query, callId });
-        iframe.remove();
-        activeIframes = activeIframes.filter(f => f !== iframe);
         resolve();
       };
+    });
+  }
+
+  function cleanupAllIframes() {
+    if (!cleanupOtherPages) return;
+    pagesSlug.forEach(slug => {
+      const iframe = iframeBySlug[slug];
+      if (!iframe) return;
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+      delete iframeBySlug[slug];
     });
   }
 
