@@ -6,12 +6,13 @@
 
 | Script | DOM Loaded? | Glance Ready? | Tested Version |
 | ------ | :--------: | :--------: | :--------: |
-| [custom-api Script Loader](custom-api-script-loader/) | YES | YES | v0.8.3 |
-| [Swipe Left and Right](swipe-left-and-right/) | YES | NO | v0.8.3  |
-| [Modal](modal/) | YES | NO | v0.8.3  |
-| [Tab Notification](tab-notification/) | YES | YES | v0.8.3  |
-| [Glimpse (Quick Launch)](glimpse/) | PARTIAL | PARTIAL | v0.8.3  |
+| [custom-api Script Loader](custom-api-script-loader/) | YES | YES | v0.8.4 |
+| [Swipe Left and Right](swipe-left-and-right/) | YES | NO | v0.8.4  |
+| [Modal](modal/) | YES | NO | v0.8.4  |
+| [Tab Notification](tab-notification/) | YES | YES | v0.8.4  |
+| [Glimpse (Quick Launch)](glimpse/) | PARTIAL | PARTIAL | v0.8.4  |
 
+*PARTIAL simply means half of the script needs to be DOM Loaded and the other half is Glance Ready.*
 
 ### Limitations
 Scripts that provide GUI itself like `Modal` can only be used with widgets that allows custom html like `custom-api`, `html`, `extension` and the like.
