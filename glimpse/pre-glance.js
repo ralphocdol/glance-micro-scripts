@@ -108,6 +108,31 @@
     };
   };
 
+  const specialKeyMap = {
+    ' ': 'Space',
+    ';': 'Semicolon',
+    ',': 'Comma',
+    '.': 'Period',
+    '/': 'Slash',
+    '\\': 'Backslash',
+    '\'': 'Quote',
+    '[': 'BracketLeft',
+    ']': 'BracketRight',
+    '-': 'Minus',
+    '=': 'Equal',
+    '`': 'Backquote',
+  };
+  const widgetClasses = [
+    '.widget-type-reddit',
+    '.widget-type-rss',
+    '.widget-type-monitor',
+    '.widget-type-docker-containers',
+    '.widget-type-videos',
+    '.widget-type-bookmarks',
+  ].map(c => `${c}:not(.glimpsable-hidden)`)
+  .concat('.glimpsable')
+  .join(', ');
+
   let controller;
   let lastCallId = 0;
   const handleInput = debounce(async (e) => {
@@ -163,20 +188,6 @@
   function keyToCode(key) {
     if (key.length === 1 && /[a-zA-Z]/.test(key)) return "Key" + key.toUpperCase();
     if (key.length === 1 && /[0-9]/.test(key)) return "Digit" + key;
-    const specialKeyMap = {
-      ' ': 'Space',
-      ';': 'Semicolon',
-      ',': 'Comma',
-      '.': 'Period',
-      '/': 'Slash',
-      '\\': 'Backslash',
-      '\'': 'Quote',
-      '[': 'BracketLeft',
-      ']': 'BracketRight',
-      '-': 'Minus',
-      '=': 'Equal',
-      '`': 'Backquote',
-    };
     return specialKeyMap[key] || null;
   }
 
@@ -193,33 +204,22 @@
 
   async function searchScrape({ contentElement, query, callId }) {
     const columns = contentElement?.querySelectorAll('.page-columns');
-    if (!columns) return;
-    for (const column of contentElement?.querySelectorAll('.page-columns')) {
+    if (!columns?.length) return;
+    for (const column of columns) {
       if (callId !== lastCallId) return;
-      const widgetClasses = [
-        '.widget-type-reddit',
-        '.widget-type-rss',
-        '.widget-type-monitor',
-        '.widget-type-docker-containers',
-        '.widget-type-videos',
-        '.widget-type-bookmarks',
-      ].map(c => `${c}:not(.glimpsable-hidden)`)
-      .concat('.glimpsable')
-      .join(', ');
-      const widgets = column.querySelectorAll(widgetClasses);
-      for (const widget of widgets) {
-        await Promise.allSettled([
+      await Promise.allSettled([
+        ...Array.from(column.querySelectorAll(widgetClasses)).flatMap(widget => [
           createWidgetResult({ widget, query, callId, listSelector: 'ul.list', itemSelector: ':scope > li' }),
           createWidgetResult({ widget, query, callId, listSelector: 'ul.list-with-separator', itemSelector: ':scope > .monitor-site, .docker-container' }),
           createWidgetResult({ widget, query, callId, listSelector: '.cards-horizontal', itemSelector: ':scope > .card' }),
-        ]);
-      }
-      for (const widget of column.querySelectorAll('.glimpsable-custom')) {
-        await createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]' })
-      }
-      for (const widget of column.querySelectorAll('.glimpsable-custom-list')) {
-        await createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' })
-      }
+        ]),
+        ...Array.from(column.querySelectorAll('.glimpsable-custom')).map(widget =>
+          createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]' })
+        ),
+        ...Array.from(column.querySelectorAll('.glimpsable-custom-list')).map(widget =>
+          createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' })
+        )
+      ]);
     }
   }
 
@@ -233,10 +233,7 @@
 
       const existingIframe = iframeBySlug[slug];
       if (existingIframe) {
-        const doc = existingIframe.contentDocument;
-        if (!doc || !doc.body) return resolve();
-
-        await searchScrape({ contentElement: doc.querySelector('#page-content'), query, callId });
+        await docSearch(existingIframe.contentDocument, slug)
         return resolve();
       }
 
@@ -252,22 +249,25 @@
       };
 
       iframe.onload = async () => {
-        const doc = iframe.contentDocument;
-        const docIs404 = doc.title.includes('404') || !doc.querySelector('#page-content');
-        if (docIs404) {
-          delete iframeBySlug[slug];
-          return resolve();
-        }
-
-        while (!doc.body.classList.contains('page-columns-transitioned')) {
-          await new Promise(r => setTimeout(r, 50));
-          if (!iframeBySlug[slug]) break;
-        }
-
-        await searchScrape({ contentElement: doc.querySelector('#page-content'), query, callId });
+        await docSearch(iframe.contentDocument, slug);
         resolve();
       };
     });
+    
+    async function docSearch(doc, s) {
+      const docIs404 = doc.title.includes('404') || !doc.querySelector('#page-content');
+      if (docIs404) {
+        delete iframeBySlug[s];
+        return resolve();
+      }
+
+      while (!doc.body.classList.contains('page-columns-transitioned')) {
+        await new Promise(r => setTimeout(r, 50));
+        if (!iframeBySlug[s]) break;
+      }
+
+      await searchScrape({ contentElement: doc.querySelector('#page-content'), query, callId });
+    }
   }
 
   function cleanupAllIframes() {
