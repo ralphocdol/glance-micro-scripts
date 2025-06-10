@@ -1,4 +1,4 @@
-[<= Micro-script list](../#micro-scripts)
+[⇐ Micro-script list](../#micro-scripts)
 
 ![reddit custom-api](preview1.png)
 
