@@ -30,28 +30,30 @@ _Read the main [README](../#micro-scripts) to learn how this should be `$include
 
 # Configurations
 ## Setting up
-This requires Glance’s search layout. Set up your search widget first (if you haven’t already) by following their configuration doc: https://github.com/glanceapp/glance/blob/v0.8.3/docs/configuration.md#search-widget
+Check the [Glance Search Properties](https://github.com/glanceapp/glance/blob/v0.8.4/docs/configuration.md#properties-10), it should be almost similar in terms of configuration. Here's a quick configuration to get you started:
+```javascript
+  const glanceSearch = { 
+    searchUrl: 'https://duckduckgo.com/?q={QUERY}',
+    newTab: true,
+    autofocus: false,
+    target: '_blank',
+    placeholder: 'Type here to search…',
+    bangs: [
+      { title: 'Google', shortcut: '!g', url: 'https://www.google.com/search?q={QUERY}' },
+      { title: 'Bing', shortcut: '!b', url: 'https://www.bing.com/search?q={QUERY}' },
+    ]
+  };
+```
 
-### Copying the search widget
-Once it’s set up and visible, you’ll need to copy its HTML structure.
-
-*Instructions may vary depending on your browser*
-1. Open DevTools (F12, [more info](https://developer.chrome.com/docs/devtools/open))
-2. In the Elements or Inspector tab, select Glance’s Search element (Ctrl+Shift+C)
-3. Ensure the element has a class containing `widget-type-search`, right-click it, then choose `Copy` > `Copy Outer HTML`
-4. In `pre-glance.js`, paste the copied HTML into the `glanceSearch` variable
-
-### Search Suggestion
+## Search Suggestion
 Due to [some limitations](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS) and the fact this is a client script, you’ll need to proxy external search suggestions (e.g., from DuckDuckGo or Google) using a service like your own Node.js server.
 
-For `searchEngineEndpoint`, copy the value from the data `data-default-search-url` attribute of the search widget you copied, and assign it to this variable.
-
-For `searchSuggestEndpoint`, use the URL of your proxy endpoint. If you're using something like [Whoogle-Search](https://github.com/benbusby/whoogle-search), the endpoint would be `/autocomplete?q=`, so you would set it like this: `https://whoogle.mydomain.com/autocomplete?q=`.
+For `searchSuggestEndpoint`, use the URL of your proxy endpoint. If you're using something like [Whoogle-Search](https://github.com/benbusby/whoogle-search), the endpoint would be `/autocomplete?q=`, so you would set it like this: `https://your-whoogle-domain.com/autocomplete?q=`.
 
 ## Other page search
 By default, Glimpse searches only the currently loaded page. To include other pages, set the `pagesSlug` array variable with your primary page's slug and any additional pages.
 
-Slugs are used instead of titles or page names since they can be [custom-defined](https://github.com/glanceapp/glance/blob/v0.8.3/docs/configuration.md#slug).
+Slugs are used instead of titles or page names since they can be [custom-defined](https://github.com/glanceapp/glance/blob/v0.8.4/docs/configuration.md#slug).
 
 > [!NOTE]
 >

@@ -1,10 +1,17 @@
 
 (() => {
-  const glanceSearch = `
-    // Search Widget goes here
-  `;
-  const searchEngineEndpoint = ``;
-  const searchSuggestEndpoint = ``;
+  // -------------------------------- USER DEFINED ----------------------------------
+  const glanceSearch = { 
+    searchUrl: 'https://duckduckgo.com/?q={QUERY}',
+    newTab: false,
+    autofocus: false,
+    target: '_blank',
+    placeholder: 'Type here to search…',
+    bangs: [
+      { title: '', shortcut: '', url: '' }, // duplicate as needed
+    ]
+  };
+  const searchSuggestEndpoint = '';
   // Other page search may or may not work due to limitations, and can be slow
   const pagesSlug = [
     // 'home-page',
@@ -14,6 +21,38 @@
   const cleanupOtherPages = true; // Warning: setting this to false is like having (# of pagesSlug) tabs opened all at once
   const glimpseKey = '';
   const waitForGlance = true;
+  // --------------------------------------------------------------------------------
+
+  const replaceBraces = str => str.replace(/[{}]/g, '!');
+  const glanceSearchWidget = `
+    <div class="widget widget-type-search">
+      <div class="widget-header">
+        <h2 class="uppercase">Search</h2>
+      </div>
+      <div class="widget-content widget-content-frameless">
+        <div class="search widget-content-frame padding-inline-widget flex gap-15 items-center" 
+          data-default-search-url="${replaceBraces(glanceSearch.searchUrl)}" data-new-tab="${glanceSearch.newTab}" data-target="${glanceSearch.target}">
+          <div class="search-bangs">
+            ${glanceSearch.bangs.map(b => `<input type="hidden" data-shortcut="${b.shortcut}" data-title="${b.title}" data-url="${b.url}">`)}
+          </div>
+          <div class="search-icon-container">
+            <svg class="search-icon" stroke="var(--color-text-subdue)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
+            </svg>
+          </div>
+          <input class="search-input" type="text" placeholder="${glanceSearch.placeholder}" autocomplete="off" autofocus="${glanceSearch.autofocus}">
+          <div class="search-bang"></div>
+          <kbd class="hide-on-mobile" title="Press [S] to focus the search input">S</kbd>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const parseGlanceSearch = new DOMParser();
+  const doc = parseGlanceSearch.parseFromString(glanceSearchWidget, 'text/html');
+  const search = doc.body.firstElementChild;
+
+  if (!search) return;
 
   const loadingAnimationElement = document.createElement('div');
   loadingAnimationElement.className = 'custom-page-loading-container';
@@ -21,12 +60,6 @@
     <div class="visually-hidden">Loading</div>
     <div class="loading-icon" aria-hidden="true"></div>
   `;
-
-  const parseGlanceSearch = new DOMParser();
-  const doc = parseGlanceSearch.parseFromString(glanceSearch, 'text/html');
-  const search = doc.body.firstElementChild;
-
-  if (!search) return;
 
   const mainPagePath = Array.from(document.querySelectorAll('.nav a')).map(a => a.getAttribute('href'))?.[0];
   const windowPathname = window.location.pathname;
@@ -119,13 +152,33 @@
       return;
     }
 
-    if (glimpseKey && event.key === glimpseKey && activeElement !== searchInput) {
+    if (glimpseKey && event.code === keyToCode(glimpseKey) && activeElement !== searchInput) {
       event.preventDefault();
       if ((waitForGlance && document.body.classList.contains('page-columns-transitioned')) || !waitForGlance) spawnGlimpse();
     }
 
     if (event.key === 'Escape') closeGlimpse();
   });
+
+  function keyToCode(key) {
+    if (key.length === 1 && /[a-zA-Z]/.test(key)) return "Key" + key.toUpperCase();
+    if (key.length === 1 && /[0-9]/.test(key)) return "Digit" + key;
+    const specialKeyMap = {
+      ' ': 'Space',
+      ';': 'Semicolon',
+      ',': 'Comma',
+      '.': 'Period',
+      '/': 'Slash',
+      '\\': 'Backslash',
+      '\'': 'Quote',
+      '[': 'BracketLeft',
+      ']': 'BracketRight',
+      '-': 'Minus',
+      '=': 'Equal',
+      '`': 'Backquote',
+    };
+    return specialKeyMap[key] || null;
+  }
 
   $include: spawn.js
 
@@ -241,7 +294,7 @@
       searchSuggestListContainer.innerHTML = 'No suggestion...';
       return;
     }
-    const searchEngine = searchEngineEndpoint.replace('!QUERY!', '');
+    const searchEngine = glanceSearch.searchUrl.replace('!QUERY!', '').replace('{QUERY}', '');
     const newWidget = document.createElement('ul');
     newWidget.innerHTML = `
       ${result[1].map(r => {
