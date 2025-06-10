@@ -33,7 +33,7 @@
         <div class="search widget-content-frame padding-inline-widget flex gap-15 items-center" 
           data-default-search-url="${replaceBraces(glanceSearch.searchUrl)}" data-new-tab="${glanceSearch.newTab}" data-target="${glanceSearch.target}">
           <div class="search-bangs">
-            ${glanceSearch.bangs.map(b => `<input type="hidden" data-shortcut="${b.shortcut}" data-title="${b.title}" data-url="${b.url}">`)}
+            ${glanceSearch.bangs.map(b => `<input type="hidden" data-shortcut="${b.shortcut}" data-title="${b.title}" data-url="${replaceBraces(b.url)}">`)}
           </div>
           <div class="search-icon-container">
             <svg class="search-icon" stroke="var(--color-text-subdue)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
@@ -53,7 +53,7 @@
   const search = doc.body.firstElementChild;
 
   if (!search) return;
-
+  
   const loadingAnimationElement = document.createElement('div');
   loadingAnimationElement.className = 'custom-page-loading-container';
   loadingAnimationElement.innerHTML = `
@@ -203,11 +203,12 @@
   }
 
   async function searchScrape({ contentElement, query, callId }) {
+    if (callId !== lastCallId) return;
     const columns = contentElement?.querySelectorAll('.page-columns');
     if (!columns?.length) return;
-    for (const column of columns) {
-      if (callId !== lastCallId) return;
-      await Promise.allSettled([
+
+    await Promise.allSettled(
+      Array.from(columns).flatMap(column => [
         ...Array.from(column.querySelectorAll(widgetClasses)).flatMap(widget => [
           createWidgetResult({ widget, query, callId, listSelector: 'ul.list', itemSelector: ':scope > li' }),
           createWidgetResult({ widget, query, callId, listSelector: 'ul.list-with-separator', itemSelector: ':scope > .monitor-site, .docker-container' }),
@@ -219,9 +220,10 @@
         ...Array.from(column.querySelectorAll('.glimpsable-custom-list')).map(widget =>
           createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]', itemSelector: '[glimpse-item]' })
         )
-      ]);
-    }
+      ])
+    );
   }
+
 
   async function otherPageScrape({ slug, query, callId }) {
     return new Promise(async (resolve) => {
@@ -233,7 +235,7 @@
 
       const existingIframe = iframeBySlug[slug];
       if (existingIframe) {
-        await docSearch(existingIframe.contentDocument, slug)
+        await docSearch(existingIframe.contentDocument, slug);
         return resolve();
       }
 
@@ -253,15 +255,15 @@
         resolve();
       };
     });
-    
+
     async function docSearch(doc, s) {
-      const docIs404 = doc.title.includes('404') || !doc.querySelector('#page-content');
-      if (docIs404) {
+      if (doc.title.includes('404') || !doc.querySelector('#page-content')) {
         delete iframeBySlug[s];
-        return resolve();
+        return;
       }
 
       while (!doc.body.classList.contains('page-columns-transitioned')) {
+        if (callId !== lastCallId) return;
         await new Promise(r => setTimeout(r, 50));
         if (!iframeBySlug[s]) break;
       }
@@ -311,6 +313,7 @@
 
   async function createWidgetResult({ widget, query, callId, listSelector, itemSelector }) {
     return new Promise((resolve) => {
+      if (callId !== lastCallId) return resolve();
       const headerSource = widget.querySelector('.widget-header > h2')?.innerText;
       const widgetContent = widget.querySelector('.widget-content');
       const widgetContentClone = sanitizeWidgetContent(widgetContent);
@@ -356,7 +359,6 @@
         ulClone.appendChild(clone);
       });
 
-      if (callId !== lastCallId) return resolve();
       glimpseResult.appendChild(newWidget);
       resolve();
     });
