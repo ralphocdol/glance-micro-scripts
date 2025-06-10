@@ -97,8 +97,31 @@
   const searchInput = glimpse.querySelector('.search-input');
   const glimpseWrapper = glimpse.querySelector('.glimpse-wrapper');
   const glimpseResult = glimpse.querySelector('.glimpse-result');
+  const glanceBang = glimpse.querySelector('.search-bang');
   const glanceContent = document.querySelector('#page-content');
   const iframeBySlug = {};
+
+  function isValidUrl(str) {
+    const domainPattern = /^([a-z0-9-]{1,63}\.)+[a-z]{2,}$/i;
+    try {
+      const url = new URL(str);
+      const { protocol, hostname } = url;
+      if (protocol !== 'http:' && protocol !== 'https:') return false;
+
+      if (hostname === 'localhost') return true;
+      if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return true; // IPv4
+      if (/^[a-f0-9:]+$/i.test(hostname) && hostname.includes(':')) return true; // IPv6
+
+      return domainPattern.test(hostname);
+    } catch {
+      const domain = str.split('/')[0];
+      return domainPattern.test(domain);
+    }
+  }
+
+  function toUrl(link) {
+    return /^https?:\/\//.test(link) ? link : 'http://' + link;
+  }
 
   const debounce = (fn, delay) => {
     let timeout;
@@ -150,6 +173,8 @@
       return;
     }
 
+    if (isValidUrl(query)) glanceBang.innerText = 'URL';
+
     glimpseWrapper.appendChild(loadingAnimationElement);
     try {
       await searchScrape({ contentElement: glanceContent, query, callId });
@@ -168,6 +193,19 @@
   }, 300);
 
   searchInput.addEventListener('input', handleInput);
+
+  searchInput.addEventListener('keydown', e => {
+    const query = (e.target.value || '').trim();
+    if (query.length < 1) return;
+    if (e.key === 'Enter' && isValidUrl(query)) {
+      e.stopImmediatePropagation();
+      if (glanceSearch.newTab && !e.ctrlKey || !glanceSearch.newTab && e.ctrlKey) {
+        window.open(toUrl(query), '_blank', 'noopener,noreferrer').focus();
+      } else {
+        window.location.href = toUrl(query);
+      }
+    }
+  });
 
   document.addEventListener('keydown', event => {
     const activeElement = document.activeElement;
