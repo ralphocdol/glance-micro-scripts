@@ -1,14 +1,10 @@
 [⇐ Micro-script list](../#micro-scripts)
 
 ### Desktop
-
-![desktop](preview1.png)
-![desktop-button](preview2.png)
+![desktop](preview1.webp)
 
 ### Mobile
-
-![mobile](preview3.png)
-![mobile-button](preview4.png)
+![mobile](preview2.webp)
 
 # Overview
 This adds a way to search through your widgets—similar to Quick Launch from [Homepage](https://gethomepage.dev/configs/settings/#quick-launch). There's an open [feature request](https://github.com/glanceapp/glance/issues/133#issuecomment-2159504258) for native support, but until then, this provides a workaround.
