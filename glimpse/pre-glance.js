@@ -21,6 +21,7 @@
   const cleanupOtherPages = true; // Warning: setting this to false is like having (# of pagesSlug) tabs opened all at once
   const glimpseKey = '';
   const waitForGlance = true;
+  const detectUrl = true; // Make sure to set to false if https://github.com/glanceapp/glance/issues/229 is addressed.
   // --------------------------------------------------------------------------------
 
   const replaceBraces = str => str.replace(/[{}]/g, '!');
@@ -173,7 +174,7 @@
       return;
     }
 
-    if (isValidUrl(query)) glanceBang.innerText = 'URL';
+    if (detectUrl && isValidUrl(query)) glanceBang.innerText = 'URL';
 
     glimpseWrapper.appendChild(loadingAnimationElement);
     try {
@@ -192,20 +193,22 @@
 
   }, 300);
 
-  searchInput.addEventListener('input', handleInput);
-
-  searchInput.addEventListener('keydown', e => {
+  const handleKeydown = e => {
     const query = (e.target.value || '').trim();
     if (query.length < 1) return;
     if (e.key === 'Enter' && isValidUrl(query)) {
       e.stopImmediatePropagation();
+      e.target.value = '';
       if (glanceSearch.newTab && !e.ctrlKey || !glanceSearch.newTab && e.ctrlKey) {
         window.open(toUrl(query), '_blank', 'noopener,noreferrer').focus();
       } else {
         window.location.href = toUrl(query);
       }
     }
-  });
+  }
+
+  searchInput.addEventListener('input', handleInput);
+  if (detectUrl) searchInput.addEventListener('keydown', handleKeydown);
 
   document.addEventListener('keydown', event => {
     const activeElement = document.activeElement;
