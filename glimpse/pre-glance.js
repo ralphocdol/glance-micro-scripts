@@ -216,8 +216,9 @@
   document.addEventListener('keydown', event => {
     const activeElement = document.activeElement;
 
-    // If Glance's search input is focused then prevent spawn
-    if (activeElement.classList.contains('search-input') && activeElement.closest('.widget-type-search') && !activeElement.closest('#glimpse')) {
+    if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeElement.tagName) ||
+      activeElement.isContentEditable ||
+      activeElement.closest('#glimpse')) {
       return;
     }
 
