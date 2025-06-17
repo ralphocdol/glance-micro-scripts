@@ -85,10 +85,18 @@ template: |
 ```
 
 ## Exclusions
-Add this property to your widget if you don't want a specific widget to be searched.
+Add this property to your widget if you don't want a specific widget to be searched:
 ```yml
 css-class: glimpsable-hidden
 ```
+
+## Duplicate Handling
+If you reuse widgets with Glimpse support across multiple pages with `$include` that is within `pagesSlug`, they may appear more than once in your Glimpse results. To avoid duplicates, add this to your widget’s `css-class` property:
+```yml
+css-class: glimpse-unique-some-unique-name
+```
+***Tip**: The class must start with `glimpse-unique-` to be recognized.
+Choose a unique suffix to keep it distinctly identifiable.*
 
 ## Other user definable variables
 | Variables           | Default | Description |

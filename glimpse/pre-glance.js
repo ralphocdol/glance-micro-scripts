@@ -54,6 +54,8 @@
   const search = doc.body.firstElementChild;
 
   if (!search) return;
+
+  const uniqueStore = [];
   
   const loadingAnimationElement = document.createElement('div');
   loadingAnimationElement.className = 'custom-page-loading-container';
@@ -183,6 +185,7 @@
         showSearchSuggestion({ query, signal }),
         ...pagesSlug.map(slug => otherPageScrape({ slug, query, callId }))
       ]);
+      uniqueStore.length = 0;
       if (callId !== lastCallId) return;
       if (glimpseResult.innerHTML == '') glimpseResult.innerText = 'No widget found...';
     } catch (err) {
@@ -401,7 +404,15 @@
         ulClone.appendChild(clone);
       });
 
-      glimpseResult.appendChild(newWidget);
+      const uniqueWidget = Array.from(widget.classList).find(cls => cls.startsWith('glimpse-unique-'));
+      if (uniqueWidget) {
+        if (!uniqueStore.some(u => u === uniqueWidget)) {
+          uniqueStore.push(uniqueWidget);
+          glimpseResult.appendChild(newWidget);
+        }
+      } else {
+        glimpseResult.appendChild(newWidget);
+      }
       resolve();
     });
   }
