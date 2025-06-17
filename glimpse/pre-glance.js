@@ -254,6 +254,7 @@
           createWidgetResult({ widget, query, callId, listSelector: 'ul.list', itemSelector: ':scope > li' }),
           createWidgetResult({ widget, query, callId, listSelector: 'ul.list-with-separator', itemSelector: ':scope > .monitor-site, .docker-container' }),
           createWidgetResult({ widget, query, callId, listSelector: '.cards-horizontal', itemSelector: ':scope > .card' }),
+          createWidgetResult({ widget, query, callId, listSelector: '.cards-vertical', itemSelector: ':scope > .widget-content-frame' }),
         ]),
         ...Array.from(column.querySelectorAll('.glimpsable-custom')).map(widget =>
           createWidgetResult({ widget, query, callId, listSelector: '[glimpse-list]' })
