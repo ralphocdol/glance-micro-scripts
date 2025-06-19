@@ -4,7 +4,6 @@
         'carousel-container',
         'mobile-navigation-page-links',
         'widget-exclude-swipe',
-        'modal',
     ]
     const EXCLUDED_TAGS = [
         'iframe'
