@@ -14,7 +14,7 @@
     }
 
     const modalWrapper = document.createElement('div');
-    modalWrapper.className = 'modal';
+    modalWrapper.classList.add('modal', 'widget-exclude-swipe');
     modalWrapper.innerHTML = `
       <div class="modal-container">
         <div class="modal-content">
@@ -74,7 +74,7 @@
                 modal.setAttribute('modal-no-background', '')
             }
 
-            modal.className = `modal ${triggerElement.className}`;
+            if (triggerElement.className) modal.classList.add(triggerElement.className);
 
             modalContainer.classList.remove(
                 ...Object.values(ENUM_WIDTH).map(size => `modal-width-${size}`),
