@@ -11,7 +11,7 @@
 | [Modal](modal/) | YES | NO | v0.8.4  |
 | [Tab Notification](tab-notification/) | YES | YES | v0.8.4  |
 | [Glimpse](glimpse/) | PARTIAL | PARTIAL | v0.8.4  |
-| **<span style="color:red;">SOON!</span>** [Responsive Table](#) | YES | YES | v0.8.4 |
+| **SOON!** [Responsive Table](#) | YES | YES | v0.8.4 |
 
 *PARTIAL simply means half of the script needs to be DOM Loaded and the other half is Glance Ready.*
 
