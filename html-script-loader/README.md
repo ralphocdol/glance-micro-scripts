@@ -1,17 +1,17 @@
 [⇐ Micro-script list](../#micro-scripts)
 
-Adding `<script></script>` in the custom API template does not work as of now, as the script will not load. Additionally, there is currently no way to automatically refresh widgets independently, with this, you can now load a script.
+Adding `<script></script>` in the `custom-api` template property or in the `html` source property does not work as of now, as the script will not load. Additionally, there is currently no way to automatically refresh widgets independently, with this, you can now load a script.
 
 > [!Caution]
 >
 > Using API queries like `fetch` with API keys within the script is possible but it WILL expose them in the browser.
 
 # Usage
-The template should have the `attribute type="custom-api-scripts"` and the function `scriptLoad()`
+The template should have the `attribute type="html-scripts"` and the function `scriptLoad()`
 
-Add a script like so below your `custom-api`'s template config
+Add a script like so below your `custom-api`'s template property or `html`'s source property.
 ```javascript
-<script type="custom-api-scripts">
+<script type="html-scripts">
     const scriptLoad = () => {  // this is required
         // your script should be in here
     }         
@@ -25,11 +25,11 @@ Add a script like so below your `custom-api`'s template config
   headers:
       Accept: application/json
   template: |
-    <script type="custom-api-scripts">
+    <script type="html-scripts">
         const scriptLoad = () => {
             const updateClock = () => {
-            const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString();
+                const now = new Date();
+                document.getElementById('clock').textContent = now.toLocaleTimeString();
             };
 
             updateClock();
@@ -45,7 +45,7 @@ Add a script like so below your `custom-api`'s template config
   cache: 6h
   css-class: custom-widget-test # as your main class element to make sure you don't update anything else
   template: |
-    <script type="custom-api-scripts">
+    <script type="html-scripts">
     const scriptLoad = () => {
         setInterval(async () => {
             const mainElement = document.querySelector('.custom-widget-test');
